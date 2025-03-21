@@ -1,0 +1,144 @@
+.pagination {
+    padding: 10px;
+  }
+  
+  .btn-outline-custom {
+    color: #2ecd89; /* Tema yeşili */
+    border-color: #2ecd89;
+    background-color: transparent;
+    font-size: 1rem; /* 16px */
+    transition: all 0.3s ease;
+  }
+  
+  .btn-outline-custom:hover {
+    background-color: #2ecd89;
+    color: #fff; /* Beyaz metin */
+  }
+  
+  .btn-outline-custom:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  
+  .page-numbers {
+    display: flex;
+    gap: 5px;
+  }
+  
+  .page-btn {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: 1px solid #2ecd89; /* Tema yeşili kenarlık */
+    background-color: #fff;
+    color: #2ecd89; /* Tema yeşili metin */
+    font-size: 1rem; /* 16px */
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .page-btn:hover {
+    background-color: #2ecd89;
+    color: #fff; /* Beyaz metin */
+  }
+  
+  .page-btn.active {
+    background-color: #2ecd89;
+    color: #fff;
+    font-weight: bold;
+  }
+  
+  .notification-header {
+    text-align: center;
+    padding: 20px;
+    background-color: #4691dc;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .dropdown-container {
+    padding: 15px;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+  
+  .custom-dropdown {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+    background-color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  .custom-dropdown:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+  }
+  
+  .notification-header h6 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #343a40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .emoji {
+    font-size: 1.8rem;
+  }
+  
+  .text {
+    font-family: "Arial", sans-serif;
+    color: #090a0b;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .btn-primary {
+    background-color: #007bff;
+    border: none;
+    padding: 5px 10px;
+    font-size: 0.875rem;
+  }
+  
+  .btn-primary:hover {
+    background-color: #0056b3;
+  }
+  .notification-message {
+    padding: 10px;
+    background-color: #4caf50;
+    color: white;
+    text-align: center;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  .bg-blue {
+    background-color: rgba(0, 123, 255, 0.5); /* Mavi */
+  }
+  
+  .bg-orange {
+    background-color: rgba(255, 165, 0, 0.5); /* Turuncu */
+  }
+  
+  .bg-red {
+    background-color: rgba(255, 0, 0, 0.5); /* Kırmızı */
+  }
+  .total-data {
+    font-size: 0.9rem;
+    color: #2ecd89;
+    padding: 5px;
+  }
+  
+  /* Responsive ayar (isteğe bağlı) */
+  @media (max-width: 768px) {
+    .total-data {
+      text-align: center;
+      margin-right: 0;
+    }
+  }
