@@ -3,7 +3,6 @@ import { ref, onBeforeMount, onBeforeUnmount } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import ArgonInput from "@/components/ArgonInput.vue";
-// import ArgonSwitch from "@/components/ArgonSwitch.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
 import axios from "axios";
 
@@ -150,9 +149,7 @@ onBeforeMount(() => {
                       </argon-button>
                     </div>
                     <br />
-                     <div class="google-login-wrapper">
-                      <google-login :callback="handleLogin" />
-                    </div> 
+                   
                   </form>
                 </div>
                 <div class="card-footer px-1 pt-0 text-center px-lg-2">
@@ -170,7 +167,7 @@ onBeforeMount(() => {
               <div
                 class="position-relative bg-gradient-primary h-100 m-3 px-7 border-radius-lg d-flex flex-column justify-content-center overflow-hidden"
                 style="
-                  background-image: url(&quot;https://media2.giphy.com/media/VGK2WUT3amXjG/giphy.gif&quot;);
+                  background-image: url(&quot;https://s3.amazonaws.com/images.skyscrapercenter.com/thumbs/104924_500x650.jpg&quot;);
                   background-size: cover;
                 "
               >
@@ -178,11 +175,10 @@ onBeforeMount(() => {
                 <h4
                   class="mt-5 text-white font-weight-bolder position-relative"
                 >
-                  "nabzınla güvendesin"
+                  IGA JURI
                 </h4>
                 <p class="text-white position-relative">
-                  The more effortless the writing looks, the more effort the
-                  writer actually put into the process.
+                 Yönetici Paneli
                 </p>
               </div>
             </div>
@@ -193,21 +189,4 @@ onBeforeMount(() => {
   </main>
 </template>
 <style>
-.google-login-wrapper {
-  display: flex;
-  justify-content: center;
-}
-
-.google-login-wrapper google-login {
-  display: inline-block;
-  width: 50px; /* Yuvarlak boyut */
-  height: 50px;
-  background-image: url("https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png");
-  background-size: cover;
-  background-position: center;
-  border-radius: 50%; /* Yuvarlak hale getirir */
-  border: none;
-  cursor: pointer;
-  overflow: hidden;
-}
 </style>

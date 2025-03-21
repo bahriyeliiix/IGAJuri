@@ -12,7 +12,7 @@ const routes = [
   {
     path: "/",
     name: "/",
-    redirect: "/signin",
+    redirect: "/anketler",
   },
   {
     path: "/dashboard-default",
