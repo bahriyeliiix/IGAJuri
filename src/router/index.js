@@ -7,8 +7,19 @@ import Profile from "../views/Profile.vue";
 import Signup from "../views/Signup.vue";
 import Signin from "../views/Signin.vue";
 import Anketler from "../views/Anketler.vue";
-
+import Jüriler from "../views/Juriler.vue";
+import SurveyContent from "../views/SurveyContent.vue";
 const routes = [
+  {
+    path: "/",
+    name: "/",
+    redirect: "/jüriler",
+  },
+  {
+    path: "/",
+    name: "/",
+    redirect: "/surveycontent",
+  },
   {
     path: "/",
     name: "/",
@@ -19,7 +30,16 @@ const routes = [
     name: "Dashboard",
     component: Dashboard,
   },
-
+  {
+      path: "/jüriler",
+      name: "JÜRİLER",
+      component: Jüriler,
+  },
+  {
+    path: "/surveycontent",
+    name: "SurveyContent",
+    component: SurveyContent,
+  },
   {
     path: "/anketler",
     name: "ANKETLER",
@@ -66,3 +86,4 @@ const router = createRouter({
 });
 
 export default router;
+
