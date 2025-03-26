@@ -38,7 +38,7 @@ onBeforeUnmount(() => {
 
 const login = async () => {
   try {
-    const response = await axios.post("http://213.238.181.142/api/Auth/login", {
+    const response = await axios.post("https://localhost:7263/api/Auth/login", {
       email: email.value,
       password: password.value,
     });

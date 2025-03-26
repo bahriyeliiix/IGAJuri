@@ -122,7 +122,7 @@ export default {
       }
       try {
         const response = await axios.post(
-          "http://213.238.181.142/api/Dashboard/last-emergency",
+          "https://localhost:7263/api/Dashboard/last-emergency",
           {},
           {
             headers: {
