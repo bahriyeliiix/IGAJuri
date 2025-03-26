@@ -153,12 +153,12 @@ onBeforeMount(() => {
                   </form>
                 </div>
                 <div class="card-footer px-1 pt-0 text-center px-lg-2">
-                  <!-- 
+                  
                   <p class="mb-4 text-sm mx-auto">
                     Don't have an account?
                     <a href="/signup" class="text-success text-gradient font-weight-bold">Sign up</a>
                   </p>
-                --></div>
+                </div>
               </div>
             </div>
             <div
