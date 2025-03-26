@@ -1,29 +1,21 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Dashboard from "../views/Dashboard.vue";
-import Billing from "../views/Billing.vue";
-import VirtualReality from "../views/VirtualReality.vue";
-import RTL from "../views/Rtl.vue";
 import Profile from "../views/Profile.vue";
 import Signup from "../views/Signup.vue";
 import Signin from "../views/Signin.vue";
 import Anketler from "../views/Anketler.vue";
 import Jüriler from "../views/Juriler.vue";
+import Survey from "../views/Survey.vue";
+import ReviewScreen from "../views/ReviewScreen.vue";
+
+
 import SurveyContent from "../views/SurveyContent.vue";
 const routes = [
+ 
   {
     path: "/",
     name: "/",
-    redirect: "/jüriler",
-  },
-  {
-    path: "/",
-    name: "/",
-    redirect: "/surveycontent",
-  },
-  {
-    path: "/",
-    name: "/",
-    redirect: "/anketler",
+    redirect: "/signin",
   },
   {
     path: "/dashboard-default",
@@ -31,14 +23,19 @@ const routes = [
     component: Dashboard,
   },
   {
-      path: "/jüriler",
+      path: "/JURRY",
       name: "JÜRİLER",
       component: Jüriler,
   },
   {
-    path: "/surveycontent",
-    name: "SurveyContent",
+    path: '/survey-content/:id', // :id parametresi zorunlu
+    name: 'SurveyContent',
     component: SurveyContent,
+  },
+  {
+    path: '/survey/:id', // :id parametresi zorunlu
+    name: "Survey",
+    component: Survey,
   },
   {
     path: "/anketler",
@@ -46,21 +43,11 @@ const routes = [
     component: Anketler,
   },
   {
-    path: "/billing",
-    name: "Billing",
-    component: Billing,
+    path: '/review-screen/:surveyId/:photoId', // ReviewScreen rotası
+    name: 'ReviewScreen',
+    component: ReviewScreen,
   },
   
-  {
-    path: "/virtual-reality",
-    name: "Virtual Reality",
-    component: VirtualReality,
-  },
-  {
-    path: "/rtl-page",
-    name: "RTL",
-    component: RTL,
-  },
   {
     path: "/profile",
     name: "Profile",

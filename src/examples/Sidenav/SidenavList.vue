@@ -57,7 +57,7 @@ const getRoute = () => {
       </li>
       <li class="nav-item">
         <sidenav-item
-          to="/jüriler"
+          to="/JURRY"
           :class="getRoute() === 'jüriler' ? 'active' : ''"
           :navText="isRTL ? 'الجداول' : 'JÜRİLER'"
         >
@@ -66,17 +66,7 @@ const getRoute = () => {
           </template>
         </sidenav-item>
       </li>
-      <li class="nav-item">
-        <sidenav-item
-          to="/surveycontent"
-          :class="getRoute() === 'surveycontent' ? 'active' : ''"
-          :navText="isRTL ? 'الجداول' : 'SurveyContent'"
-        >
-          <template v-slot:icon>
-            <i class="ni ni-single-02 text-warning text-sm opacity-10"></i>
-          </template>
-        </sidenav-item>
-      </li>
+    
       <!-- <li class="nav-item">
         <sidenav-item
           to="/user-health-report"

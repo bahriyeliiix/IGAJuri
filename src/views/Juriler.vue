@@ -57,12 +57,6 @@
                 </td>
                 <td class="action-buttons">
                   <button
-                    class="btn btn-info btn-sm mx-1"
-                    @click="openDepartmentModal(item)"
-                  >
-                    Departman Bilgisi
-                  </button>
-                  <button
                     class="btn btn-dark btn-sm mx-1"
                     @click="openDetailsModal(item)"
                   >
@@ -129,42 +123,27 @@
             placeholder="İsim Soyisim"
           />
           <input
-            v-model="newJuryDepartment"
-            type="text"
+            v-model="newJuryEmail"
+            type="email"
             class="form-control mb-3"
-            placeholder="Departman"
+            placeholder="E-posta"
           />
-          <input
-            v-model="newJuryContact"
-            type="text"
-            class="form-control mb-3"
-            placeholder="İletişim Bilgisi"
-          />
+          <div class="input-group mb-3">
+            <input
+              v-model="newJuryPassword"
+              type="text"
+              class="form-control"
+              placeholder="Şifre"
+            />
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary" @click="generatePassword">
+                Şifre Üret
+              </button>
+            </div>
+          </div>
           <div class="modal-buttons">
             <button class="btn btn-primary" @click="saveNewJury">Kaydet</button>
             <button class="btn btn-secondary" @click="closeAddModal">
-              Kapat
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div
-        v-if="showDepartmentModal"
-        class="modal-overlay"
-        @click.self="closeDepartmentModal"
-      >
-        <div class="modal-content">
-          <h5>Departman Bilgisi (ID: {{ selectedJury.id }})</h5>
-          <input
-            v-model="departmentInfo"
-            type="text"
-            class="form-control mb-3"
-            placeholder="Departman Bilgisi"
-            disabled
-          />
-          <div class="modal-buttons">
-            <button class="btn btn-secondary" @click="closeDepartmentModal">
               Kapat
             </button>
           </div>
@@ -180,9 +159,8 @@
           <h5>Jüri Detayları (ID: {{ selectedJury.id }})</h5>
           <div class="details-content">
             <p><strong>Ad Soyad:</strong> {{ selectedJury.juryFullName }}</p>
+            <p><strong>E-posta:</strong> {{ selectedJury.email || "Belirtilmemiş" }}</p>
             <p><strong>Oluşturulma Tarihi:</strong> {{ selectedJury.createdDate }}</p>
-            <p><strong>Departman:</strong> {{ selectedJury.department || "Belirtilmemiş" }}</p>
-            <p><strong>İletişim Bilgisi:</strong> {{ selectedJury.contactInfo || "Belirtilmemiş" }}</p>
           </div>
           <div class="modal-buttons">
             <button class="btn btn-secondary" @click="closeDetailsModal">
@@ -206,17 +184,28 @@
             placeholder="İsim Soyisim"
           />
           <input
-            v-model="editJuryDepartment"
-            type="text"
+            v-model="editJuryEmail"
+            type="email"
             class="form-control mb-3"
-            placeholder="Departman"
+            placeholder="E-posta"
           />
-          <input
-            v-model="editJuryContact"
-            type="text"
-            class="form-control mb-3"
-            placeholder="İletişim Bilgisi"
-          />
+          <div class="input-group mb-3">
+            <input
+              v-model="editJuryPassword"
+              type="text"
+              class="form-control"
+              placeholder="Yeni Şifre (isteğe bağlı)"
+              :disabled="!resetPassword"
+            />
+            <div class="input-group-append">
+              <button
+                class="btn btn-outline-secondary"
+                @click="toggleResetPassword"
+              >
+                {{ resetPassword ? "İptal" : "Şifreyi Sıfırla" }}
+              </button>
+            </div>
+          </div>
           <div class="modal-buttons">
             <button class="btn btn-primary" @click="saveEditJury">
               Kaydet
@@ -255,45 +244,25 @@ export default {
   name: "Juriler",
   data() {
     return {
-      apiData: [
-        { id: 1, juryFullName: "Ali Yılmaz", createdDate: "2025-03-01", department: "Yazılım", contactInfo: "ali.yilmaz@example.com" },
-        { id: 2, juryFullName: "Ayşe Kaya", createdDate: "2025-03-02", department: "Tasarım", contactInfo: "ayse.kaya@example.com" },
-        { id: 3, juryFullName: "Mehmet Demir", createdDate: "2025-03-03", department: "Pazarlama", contactInfo: "mehmet.demir@example.com" },
-        { id: 4, juryFullName: "Fatma Şahin", createdDate: "2025-03-04", department: "İnsan Kaynakları", contactInfo: "fatma.sahin@example.com" },
-        { id: 5, juryFullName: "Hasan Öztürk", createdDate: "2025-03-05", department: "Finans", contactInfo: "hasan.ozturk@example.com" },
-        { id: 6, juryFullName: "Zeynep Aksoy", createdDate: "2025-03-06", department: "Yazılım", contactInfo: "zeynep.aksoy@example.com" },
-        { id: 7, juryFullName: "Emre Çelik", createdDate: "2025-03-07", department: "Tasarım", contactInfo: "emre.celik@example.com" },
-        { id: 8, juryFullName: "Selin Arslan", createdDate: "2025-03-08", department: "Pazarlama", contactInfo: "selin.arslan@example.com" },
-        { id: 9, juryFullName: "Burak Güneş", createdDate: "2025-03-09", department: "İnsan Kaynakları", contactInfo: "burak.gunes@example.com" },
-        { id: 10, juryFullName: "Ece Aydın", createdDate: "2025-03-10", department: "Finans", contactInfo: "ece.aydin@example.com" },
-        { id: 11, juryFullName: "Caner Toprak", createdDate: "2025-03-11", department: "Yazılım", contactInfo: "caner.toprak@example.com" },
-        { id: 12, juryFullName: "Derya Deniz", createdDate: "2025-03-12", department: "Tasarım", contactInfo: "derya.deniz@example.com" },
-        { id: 13, juryFullName: "Kaan Polat", createdDate: "2025-03-13", department: "Pazarlama", contactInfo: "kaan.polat@example.com" },
-        { id: 14, juryFullName: "Merve Yıldız", createdDate: "2025-03-14", department: "İnsan Kaynakları", contactInfo: "merve.yildiz@example.com" },
-        { id: 15, juryFullName: "Okan Şimşek", createdDate: "2025-03-15", department: "Finans", contactInfo: "okan.simsek@example.com" },
-        { id: 16, juryFullName: "Pınar Korkmaz", createdDate: "2025-03-16", department: "Yazılım", contactInfo: "pinar.korkmaz@example.com" },
-        { id: 17, juryFullName: "Tolga Eren", createdDate: "2025-03-17", department: "Tasarım", contactInfo: "tolga.eren@example.com" },
-        { id: 18, juryFullName: "Seda Çetin", createdDate: "2025-03-18", department: "Pazarlama", contactInfo: "seda.cetin@example.com" },
-        { id: 19, juryFullName: "Yasin Kaplan", createdDate: "2025-03-19", department: "İnsan Kaynakları", contactInfo: "yasin.kaplan@example.com" },
-        { id: 20, juryFullName: "Buse Tekin", createdDate: "2025-03-20", department: "Finans", contactInfo: "buse.tekin@example.com" }
-      ],
+      apiData: [],
+      baseUrl: "https://localhost:7263",
+      token: null,
       noDataMessage: "",
       currentPage: 1,
       itemsPerPage: 10,
       showAddModal: false,
-      showDepartmentModal: false,
       showEditModal: false,
       showDeleteModal: false,
       showDetailsModal: false,
       newJuryFullName: "",
-      newJuryDepartment: "",
-      newJuryContact: "",
-      departmentInfo: "",
+      newJuryEmail: "",
+      newJuryPassword: "",
       editJuryFullName: "",
-      editJuryDepartment: "",
-      editJuryContact: "",
+      editJuryEmail: "",
+      editJuryPassword: "",
+      resetPassword: false,
       selectedJury: {},
-      deleteJuryId: null
+      deleteJuryId: null,
     };
   },
   computed: {
@@ -304,42 +273,177 @@ export default {
     },
     totalPages() {
       return Math.ceil(this.apiData.length / this.itemsPerPage);
+    },
+  },
+  mounted() {
+    this.token = localStorage.getItem("token");
+    if (!this.token) {
+      console.error("Token bulunamadı, lütfen giriş yapın.");
+      this.noDataMessage = "Oturum açmanız gerekiyor.";
+      return;
     }
+    this.fetchJuryList();
   },
   methods: {
+    async fetchJuryList() {
+      try {
+        const response = await fetch(`${this.baseUrl}/api/User/GetAllJurry`, {
+          headers: {
+            Authorization: `Bearer ${this.token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        const result = await response.json();
+        if (result.statusCode === 200) {
+          this.apiData = result.data.map((item) => ({
+            id: item.id,
+            juryFullName: item.username,
+            email: item.email,
+            createdDate: item.createdDate || new Date().toISOString().split("T")[0],
+          }));
+        } else {
+          this.noDataMessage = "Jüri listesi yüklenemedi.";
+        }
+      } catch (error) {
+        console.error("Hata:", error);
+        this.noDataMessage = "Bir hata oluştu.";
+      }
+    },
+
+    generatePassword() {
+      const length = 10;
+      const charset =
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
+      let password = "";
+      for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * charset.length);
+        password += charset[randomIndex];
+      }
+      this.newJuryPassword = password; // Yeni ekleme için
+    },
+
+    toggleResetPassword() {
+      if (this.resetPassword) {
+        this.editJuryPassword = "";
+      } else {
+        const length = 10;
+        const charset =
+          "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
+        let password = "";
+        for (let i = 0; i < length; i++) {
+          const randomIndex = Math.floor(Math.random() * charset.length);
+          password += charset[randomIndex];
+        }
+        this.editJuryPassword = password;
+      }
+      this.resetPassword = !this.resetPassword;
+    },
+
+    async saveNewJury() {
+      if (!this.newJuryFullName.trim() || !this.newJuryEmail.trim() || !this.newJuryPassword.trim()) {
+        alert("Tüm alanlar doldurulmalıdır!");
+        return;
+      }
+      const payload = {
+        username: this.newJuryFullName,
+        email: this.newJuryEmail,
+        password: this.newJuryPassword,
+        role: 2,
+      };
+      try {
+        const response = await fetch(`${this.baseUrl}/api/User/CreateOrEditUser`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${this.token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+        const result = await response.json();
+        if (result.statusCode === 200) {
+          this.apiData.push({
+            id: result.data.id,
+            juryFullName: this.newJuryFullName,
+            email: this.newJuryEmail,
+            createdDate: new Date().toISOString().split("T")[0],
+          });
+          this.closeAddModal();
+        } else {
+          alert("Jüri eklenemedi!");
+        }
+      } catch (error) {
+        console.error("Hata:", error);
+        alert("Bir hata oluştu.");
+      }
+    },
+
+    async saveEditJury() {
+      if (!this.editJuryFullName.trim() || !this.editJuryEmail.trim()) {
+        alert("Tüm alanlar doldurulmalıdır!");
+        return;
+      }
+      const payload = {
+        id: this.selectedJury.id,
+        username: this.editJuryFullName,
+        email: this.editJuryEmail,
+        role: 2,
+      };
+      if (this.resetPassword && this.editJuryPassword.trim()) {
+        payload.password = this.editJuryPassword;
+      }
+      try {
+        const response = await fetch(`${this.baseUrl}/api/User/CreateOrEditUser`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${this.token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+        const result = await response.json();
+        if (result.statusCode === 200) {
+          this.selectedJury.juryFullName = this.editJuryFullName;
+          this.selectedJury.email = this.editJuryEmail;
+          this.closeEditModal();
+        } else {
+          alert("Jüri güncellenemedi!");
+        }
+      } catch (error) {
+        console.error("Hata:", error);
+        alert("Bir hata oluştu.");
+      }
+    },
+
+    async confirmDelete() {
+      try {
+        const response = await fetch(`${this.baseUrl}/api/User/DeleteUser/${this.deleteJuryId}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${this.token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        const result = await response.json();
+        if (result.statusCode === 200) {
+          this.apiData = this.apiData.filter((item) => item.id !== this.deleteJuryId);
+          this.closeDeleteModal();
+        } else {
+          alert("Jüri silinemedi!");
+        }
+      } catch (error) {
+        console.error("Hata:", error);
+        alert("Bir hata oluştu.");
+      }
+    },
+
     openAddModal() {
       this.newJuryFullName = "";
-      this.newJuryDepartment = "";
-      this.newJuryContact = "";
+      this.newJuryEmail = "";
+      this.newJuryPassword = "";
       this.showAddModal = true;
     },
     closeAddModal() {
       this.showAddModal = false;
-    },
-    saveNewJury() {
-      if (this.newJuryFullName.trim()) {
-        const newId = this.apiData.length
-          ? Math.max(...this.apiData.map((item) => item.id)) + 1
-          : 1;
-        this.apiData.push({
-          id: newId,
-          juryFullName: this.newJuryFullName,
-          createdDate: new Date().toISOString().split("T")[0],
-          department: this.newJuryDepartment,
-          contactInfo: this.newJuryContact
-        });
-        this.closeAddModal();
-      } else {
-        alert("Jüri adı soyadı boş olamaz!");
-      }
-    },
-    openDepartmentModal(jury) {
-      this.selectedJury = jury;
-      this.departmentInfo = jury.department || "";
-      this.showDepartmentModal = true;
-    },
-    closeDepartmentModal() {
-      this.showDepartmentModal = false;
     },
     openDetailsModal(jury) {
       this.selectedJury = jury;
@@ -351,22 +455,13 @@ export default {
     openEditModal(jury) {
       this.selectedJury = jury;
       this.editJuryFullName = jury.juryFullName;
-      this.editJuryDepartment = jury.department;
-      this.editJuryContact = jury.contactInfo;
+      this.editJuryEmail = jury.email;
+      this.editJuryPassword = "";
+      this.resetPassword = false;
       this.showEditModal = true;
     },
     closeEditModal() {
       this.showEditModal = false;
-    },
-    saveEditJury() {
-      if (this.editJuryFullName.trim()) {
-        this.selectedJury.juryFullName = this.editJuryFullName;
-        this.selectedJury.department = this.editJuryDepartment;
-        this.selectedJury.contactInfo = this.editJuryContact;
-        this.closeEditModal();
-      } else {
-        alert("Jüri adı soyadı boş olamaz!");
-      }
     },
     openDeleteModal(id) {
       this.deleteJuryId = id;
@@ -375,12 +470,7 @@ export default {
     closeDeleteModal() {
       this.showDeleteModal = false;
     },
-    confirmDelete() {
-      this.apiData = this.apiData.filter(
-        (item) => item.id !== this.deleteJuryId
-      );
-      this.closeDeleteModal();
-    },
+
     prevPage() {
       if (this.currentPage > 1) this.currentPage--;
     },
@@ -389,8 +479,8 @@ export default {
     },
     goToPage(page) {
       if (page >= 1 && page <= this.totalPages) this.currentPage = page;
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -451,16 +541,6 @@ export default {
   text-transform: uppercase;
   transition: all 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.btn-info {
-  background-color: #7dd3fc;
-  color: #fff;
-  border: none;
-}
-.btn-info:hover {
-  background-color: #0ea5e9;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .btn-dark {

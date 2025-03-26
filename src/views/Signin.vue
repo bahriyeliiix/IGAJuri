@@ -44,9 +44,13 @@ const login = async () => {
     });
 
     const token = response.data.token.access_token;
+    const role = response.data.token.role;
+
 
     store.dispatch("saveToken", token);
     localStorage.setItem("authToken", token);
+    store.dispatch("role", role);
+    localStorage.setItem("role", role);
 
     router.push({ name: "Dashboard" });
   } catch (error) {

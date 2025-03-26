@@ -45,7 +45,7 @@
 import axios from 'axios'
 
 export default {
-  name: 'ImageGrid',
+  name: 'Survey',
   data() {
     return {
       images: [],
