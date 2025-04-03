@@ -38,7 +38,7 @@ defineProps({
           :class="isNavFixed ? 'text-dark' : 'text-white'"
           class="opacity-8"
           href="#"
-          >Pages</a
+          >Sayfalar</a
         >
       </li>
       <li
@@ -53,7 +53,7 @@ defineProps({
       class="mb-0 font-weight-bolder"
       :class="isNavFixed ? 'text-dark' : 'text-white'"
     >
-      {{ currentDirectory }}
+      <!-- {{ currentDirectory }} -->
     </h6>
   </nav>
 </template>

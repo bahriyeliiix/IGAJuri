@@ -6,7 +6,9 @@
         <div class="row align-items-start">
           <div class="col-12 col-md-4 image-container">
             <img
-              :src="imageUrl || 'https://via.placeholder.com/200x200?text=Resim+Yok'"
+              :src="
+                imageUrl || 'https://via.placeholder.com/200x200?text=Resim+Yok'
+              "
               alt="API'den gelen resim"
               class="responsive-image"
             />
@@ -139,8 +141,10 @@ export default {
         );
 
         // API'den gelen veriyi kontrol ederek data'ya yerleştiriyoruz
-        const data = response.data || {};
-        this.imageUrl = data.imageInfo?.imageUrl || "";
+        const data = response.data.data || {};
+
+        this.imageUrl =
+          `https://localhost:7263/img/${data.imageInfo?.imageName}` || "";
         this.imageName = data.imageInfo?.imageName || "";
         this.totalReviews = data.reviewSummary?.totalReviews ?? 0; // null veya undefined ise 0
         this.totalScore = data.reviewSummary?.totalScore ?? 0; // null veya undefined ise 0

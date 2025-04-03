@@ -346,8 +346,6 @@ export default {
           throw new Error("Token bulunamadı, lütfen giriş yapın.");
         }
 
-        console.log("surveyId:", this.surveyId);
-
         const response = await axios.get(
           `https://localhost:7263/api/Survey/GetSurveyContent/${this.surveyId}`,
           {
@@ -361,7 +359,7 @@ export default {
         const surveyContentData = response.data.data || [];
         this.apiData = surveyContentData.map((item) => ({
           id: item.photoId,
-          imageUrl: item.photoPath, // Şu an yerel yol, aşağıda çözüm önerisi var
+          imageUrl: `https://localhost:7263/img/${item.photoTitle}`,
           imageName: item.photoTitle,
           surveyName: item.surveyName,
           voteCount: item.voteUserCount,
@@ -388,13 +386,7 @@ export default {
     },
     goToReviewScreen(photoId) {
       try {
-        this.$router.push({
-          name: "ReviewScreen",
-          params: {
-            surveyId: this.surveyId, // Mevcut surveyId
-            photoId: photoId, // Tıklanan resmin photoId'si
-          },
-        });
+        this.$router.push(`/review-screen/${this.surveyId}/${photoId}`);
       } catch (error) {
         console.error("ReviewScreen'e yönlendirme hatası:", error);
       }

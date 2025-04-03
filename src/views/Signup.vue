@@ -125,15 +125,12 @@ const signup = async () => {
     PhoneNumber: phoneNumber.value,
     Role: 2, // Jüri rolü için sabit değer
   };
-  console.log("Gönderilen Veriler:", dataToSend);
 
   try {
     const response = await axios.post("http://localhost:5073/api/Auth/register", dataToSend);
-    console.log("response", response);
 
     if (response.status === 200) {
       const token = response.data.data?.access_token;
-      console.log("TOKEN => ", token);
       statusMessage.value = "Kayıt başarılı! Jüri olarak kaydedildiniz.";
       store.dispatch("saveToken", token);
       localStorage.setItem("authToken", token);

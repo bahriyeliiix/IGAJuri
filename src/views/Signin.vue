@@ -45,51 +45,28 @@ const login = async () => {
 
     const token = response.data.token.access_token;
     const role = response.data.token.role;
-
+    const userId = response.data.token.userId;
 
     store.dispatch("saveToken", token);
     localStorage.setItem("authToken", token);
+
     store.dispatch("role", role);
     localStorage.setItem("role", role);
 
-    router.push({ name: "Dashboard" });
+    store.dispatch("userId", userId);
+    localStorage.setItem("userId", userId);
+
+    // router.push({ name: "Dashboard" });
+    router.push({ name: "ANKETLER" });
   } catch (error) {
     console.error("Login failed:", error);
   }
 };
 
 // Google Login için handleLogin fonksiyonu
-const handleLogin = async (response) => {
-  try {
-    // Google'dan gelen credential (token)
-    const googleToken = response.credential;
-    console.log("Google ID Token:", googleToken);
-
-    // Backend'e Google token'ı gönder (örnek bir endpoint varsayıyorum)
-    const apiResponse = await axios.post(
-      "http://localhost:5031/api/Auth/outsource-login",
-      {
-        token: googleToken,
-        registerSource: 2,
-      }
-    );
-    console.log("API Response:", apiResponse.data);
-    const token = apiResponse.data.token.access_token;
-
-    // Token'ı Vuex ve localStorage'a kaydet
-    store.dispatch("saveToken", token);
-    localStorage.setItem("authToken", token);
-
-    // Dashboard'a yönlendir
-    router.push({ name: "Dashboard" });
-  } catch (error) {
-    console.error("Google Login failed:", error);
-  }
-};
 
 // Google callback fonksiyonunu globale tanımla
 onBeforeMount(() => {
-  window.handleCredentialResponse = handleLogin;
 });
 </script>
 <template>
@@ -158,10 +135,7 @@ onBeforeMount(() => {
                 </div>
                 <div class="card-footer px-1 pt-0 text-center px-lg-2">
                   
-                  <p class="mb-4 text-sm mx-auto">
-                    Don't have an account?
-                    <a href="/signup" class="text-success text-gradient font-weight-bold">Sign up</a>
-                  </p>
+                
                 </div>
               </div>
             </div>

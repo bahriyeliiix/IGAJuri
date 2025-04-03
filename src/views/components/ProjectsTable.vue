@@ -131,7 +131,6 @@ export default {
           }
         );
 
-        console.log(response.data);
         if (response.data.statusCode === 200) {
           this.apiData = response.data.data;
         } else {
