@@ -114,7 +114,7 @@
               <span class="rank">{{ index + 1 }}.</span>
               <span
                 class="photo-title"
-                @click="openImageModal(photo.photoTitle)"
+                @click="openImageModal(photo.photoPath, photo.photoTitle)"
                 style="cursor: pointer"
               >
                 {{ photo.photoTitle }}
@@ -136,7 +136,7 @@
               <span class="rank">{{ index + 1 }}.</span>
               <span
                 class="photo-title"
-                @click="openImageModal(photo.photoTitle)"
+                @click="openImageModal(photo.photoPath, photo.photoTitle)"
                 style="cursor: pointer"
               >
                 {{ photo.photoTitle }}
@@ -158,7 +158,7 @@
               <span class="rank">{{ index + 1 }}.</span>
               <span
                 class="photo-title"
-                @click="openImageModal(photo.photoTitle)"
+                @click="openImageModal(photo.photoPath, photo.photoTitle)"
                 style="cursor: pointer"
               >
                 {{ photo.photoTitle }}
@@ -180,7 +180,7 @@
               <span class="rank">{{ index + 1 }}.</span>
               <span
                 class="photo-title"
-                @click="openImageModal(photo.photoTitle)"
+                @click="openImageModal(photo.photoPath, photo.photoTitle)"
                 style="cursor: pointer"
               >
                 {{ photo.photoTitle }}
@@ -456,8 +456,8 @@ export default defineComponent({
       if (!this.commentCounts.length)
         this.error = "Bu grafik için veri bulunamadı.";
     },
-    openImageModal(photoTitle) {
-      this.selectedImageUrl = `https://localhost:7263/img/${photoTitle}`;
+    openImageModal(photoPath, photoTitle) {
+      this.selectedImageUrl = `https://localhost:7263/img/${photoPath}`;
       this.selectedImageTitle = photoTitle;
       this.showModal = true;
     },

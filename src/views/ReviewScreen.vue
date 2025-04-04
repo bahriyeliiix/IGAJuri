@@ -144,7 +144,7 @@ export default {
         const data = response.data.data || {};
 
         this.imageUrl =
-          `https://localhost:7263/img/${data.imageInfo?.imageName}` || "";
+          `https://localhost:7263/img/${data.imageInfo?.imageUrl}` || "";
         this.imageName = data.imageInfo?.imageName || "";
         this.totalReviews = data.reviewSummary?.totalReviews ?? 0; // null veya undefined ise 0
         this.totalScore = data.reviewSummary?.totalScore ?? 0; // null veya undefined ise 0

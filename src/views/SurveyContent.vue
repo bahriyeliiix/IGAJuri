@@ -359,7 +359,7 @@ export default {
         const surveyContentData = response.data.data || [];
         this.apiData = surveyContentData.map((item) => ({
           id: item.photoId,
-          imageUrl: `https://localhost:7263/img/${item.photoTitle}`,
+          imageUrl: `https://localhost:7263/img/${item.photoPath}`,
           imageName: item.photoTitle,
           surveyName: item.surveyName,
           voteCount: item.voteUserCount,
