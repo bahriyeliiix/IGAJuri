@@ -114,10 +114,10 @@
               <span class="rank">{{ index + 1 }}.</span>
               <span
                 class="photo-title"
-                @click="openImageModal(photo.photoPath, photo.photoTitle)"
+                @click="openImageModal(photo.photoPath, photo.originalTitle)"
                 style="cursor: pointer"
               >
-                {{ photo.photoTitle }}
+                {{ photo.originalTitle }}
               </span>
               <span class="photo-stat">{{ photo.totalVotes }} oy</span>
             </div>
@@ -136,10 +136,10 @@
               <span class="rank">{{ index + 1 }}.</span>
               <span
                 class="photo-title"
-                @click="openImageModal(photo.photoPath, photo.photoTitle)"
+                @click="openImageModal(photo.photoPath, photo.originalTitle)"
                 style="cursor: pointer"
               >
-                {{ photo.photoTitle }}
+                {{ photo.originalTitle }}
               </span>
               <span class="photo-stat">{{ photo.voteCount }} oylama</span>
             </div>
@@ -158,10 +158,10 @@
               <span class="rank">{{ index + 1 }}.</span>
               <span
                 class="photo-title"
-                @click="openImageModal(photo.photoPath, photo.photoTitle)"
+                @click="openImageModal(photo.photoPath, photo.originalTitle)"
                 style="cursor: pointer"
               >
-                {{ photo.photoTitle }}
+                {{ photo.originalTitle }}
               </span>
               <span class="photo-stat">{{ photo.commentCount }} yorum</span>
             </div>
@@ -180,10 +180,10 @@
               <span class="rank">{{ index + 1 }}.</span>
               <span
                 class="photo-title"
-                @click="openImageModal(photo.photoPath, photo.photoTitle)"
+                @click="openImageModal(photo.photoPath, photo.originalTitle)"
                 style="cursor: pointer"
               >
-                {{ photo.photoTitle }}
+                {{ photo.originalTitle }}
               </span>
               <span class="photo-stat">{{ photo.totalVotes }} oy</span>
             </div>
@@ -283,7 +283,7 @@ export default defineComponent({
     voteTotalsData() {
       return {
         labels: this.voteTotals.map(
-          (item) => item.photoTitle || "Bilinmeyen Fotoğraf"
+          (item) => item.originalTitle || "Bilinmeyen Fotoğraf"
         ),
         datasets: [
           {
@@ -299,7 +299,7 @@ export default defineComponent({
     voteCountsData() {
       return {
         labels: this.voteCounts.map(
-          (item) => item.photoTitle || "Bilinmeyen Fotoğraf"
+          (item) => item.originalTitle || "Bilinmeyen Fotoğraf"
         ),
         datasets: [
           {
@@ -315,7 +315,7 @@ export default defineComponent({
     commentCountsData() {
       return {
         labels: this.commentCounts.map(
-          (item) => item.photoTitle || "Bilinmeyen Fotoğraf"
+          (item) => item.originalTitle || "Bilinmeyen Fotoğraf"
         ),
         datasets: [
           {
@@ -456,9 +456,9 @@ export default defineComponent({
       if (!this.commentCounts.length)
         this.error = "Bu grafik için veri bulunamadı.";
     },
-    openImageModal(photoPath, photoTitle) {
+    openImageModal(photoPath, originalTitle) {
       this.selectedImageUrl = `https://localhost:7263/img/${photoPath}`;
-      this.selectedImageTitle = photoTitle;
+      this.selectedImageTitle = originalTitle;
       this.showModal = true;
     },
     closeImageModal() {
@@ -500,7 +500,7 @@ export default defineComponent({
         "Sıra No": index + 1, // Sıra numarası (1'den başlar)
         "Anket Adı": item.surveyName,
         "Fotoğraf ID": item.photoId,
-        "Fotoğraf Başlığı": item.photoTitle,
+        "Fotoğraf Başlığı": item.originalTitle,
         "Fotoğraf Yolu": item.photoPath,
         "Oy Veren Kullanıcı Sayısı": item.voteUserCount,
         "Yorum Yapan Kullanıcı Sayısı": item.commentUserCount,

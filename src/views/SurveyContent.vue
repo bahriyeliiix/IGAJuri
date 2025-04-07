@@ -2,9 +2,15 @@
   <div class="container">
     <div class="card mb-4">
       <div class="card-header">
-        <button class="btn btn-primary btn-sm" @click="openAddModal">
-          Yeni Ekle
-        </button>
+        <!-- Arama ve Sıralama Kontrolleri -->
+        <div class="search-container mb-3">
+          <input
+            v-model="searchQuery"
+            type="text"
+            class="form-control"
+            placeholder="Resim Adı, Anket Adı veya Oy Sayısı ile Ara..."
+          />
+        </div>
       </div>
       <div class="card-body">
         <div class="table-responsive">
@@ -22,19 +28,31 @@
                   Resim
                 </th>
                 <th
-                  class="text-uppercase text-light text-xs font-weight-bolder"
+                  class="text-uppercase text-light text-xs font-weight-bolder sortable"
+                  @click="sort('originaltitle')"
                 >
                   Resim Adı
+                  <span v-if="sortKey === 'originaltitle'">
+                    {{ sortOrder === 'asc' ? '↑' : '↓' }}
+                  </span>
                 </th>
                 <th
-                  class="text-uppercase text-light text-xs font-weight-bolder"
+                  class="text-uppercase text-light text-xs font-weight-bolder sortable"
+                  @click="sort('surveyName')"
                 >
                   Anket Adı
+                  <span v-if="sortKey === 'surveyName'">
+                    {{ sortOrder === 'asc' ? '↑' : '↓' }}
+                  </span>
                 </th>
                 <th
-                  class="text-uppercase text-light text-xs font-weight-bolder"
+                  class="text-uppercase text-light text-xs font-weight-bolder sortable"
+                  @click="sort('voteCount')"
                 >
                   Aldığı Oy Sayısı
+                  <span v-if="sortKey === 'voteCount'">
+                    {{ sortOrder === 'asc' ? '↑' : '↓' }}
+                  </span>
                 </th>
                 <th
                   class="text-uppercase text-light text-xs font-weight-bolder"
@@ -67,7 +85,7 @@
                 </td>
                 <td>
                   <span class="text-xs font-weight-bold">{{
-                    item.imageName
+                    item.originaltitle
                   }}</span>
                 </td>
                 <td>
@@ -87,7 +105,8 @@
                   >
                     Detaylar
                   </button>
-                  <button
+                  <!-- Uncomment if needed -->
+                  <!-- <button
                     class="btn btn-warning btn-sm mx-1"
                     @click="openEditModal(item)"
                   >
@@ -98,7 +117,7 @@
                     @click="openDeleteModal(item.id)"
                   >
                     Sil
-                  </button>
+                  </button> -->
                 </td>
               </tr>
             </tbody>
@@ -132,12 +151,12 @@
         </div>
         <div class="total-data text-right mt-2">
           <span class="text-sm font-weight-bold"
-            >Toplam Veri: {{ apiData.length }}</span
+            >Toplam Veri: {{ filteredData.length }}</span
           >
         </div>
       </div>
 
-      <!-- Yeni Ekle Modal -->
+      <!-- Modals remain unchanged -->
       <div
         v-if="showAddModal"
         class="modal-overlay"
@@ -163,7 +182,6 @@
             class="form-control mb-3"
             placeholder="Anket Adı"
           />
-          <!-- Aldığı Oy Sayısı için güncellenmiş giriş -->
           <input
             v-model.number="newVoteCount"
             type="number"
@@ -183,7 +201,6 @@
         </div>
       </div>
 
-      <!-- Detaylar Modal -->
       <div
         v-if="showDetailsModal"
         class="modal-overlay"
@@ -198,7 +215,7 @@
               alt="Resim"
               class="survey-image-large"
             />
-            <p><strong>Resim Adı:</strong> {{ selectedContent.imageName }}</p>
+            <p><strong>Resim Adı:</strong> {{ selectedContent.originaltitle }}</p>
             <p><strong>Anket Adı:</strong> {{ selectedContent.surveyName }}</p>
             <p>
               <strong>Aldığı Oy Sayısı:</strong> {{ selectedContent.voteCount }}
@@ -212,7 +229,6 @@
         </div>
       </div>
 
-      <!-- Düzenle Modal -->
       <div
         v-if="showEditModal"
         class="modal-overlay"
@@ -255,7 +271,6 @@
         </div>
       </div>
 
-      <!-- Silme Modal -->
       <div
         v-if="showDeleteModal"
         class="modal-overlay"
@@ -275,14 +290,13 @@
         </div>
       </div>
 
-      <!-- Resim Büyütme Modal -->
       <div
         v-if="showImageModal"
         class="modal-overlay"
         @click.self="closeImageModal"
       >
         <div class="modal-content">
-          <h5>{{ selectedContent.imageName }}</h5>
+          <h5>{{ selectedContent.originaltitle }}</h5>
           <img
             :src="selectedContent.imageUrl"
             alt="Büyük Resim"
@@ -326,16 +340,50 @@ export default {
       editVoteCount: 0,
       selectedContent: {},
       deleteContentId: null,
+      searchQuery: "", // Arama için yeni alan
+      sortKey: "", // Sıralama için anahtar
+      sortOrder: "asc", // Sıralama yönü: asc (artan) veya desc (azalan)
     };
   },
   computed: {
+    filteredData() {
+      let filtered = [...this.apiData];
+      if (this.searchQuery) {
+        const query = this.searchQuery.toLowerCase();
+        filtered = filtered.filter(
+          (item) =>
+            item.originaltitle.toLowerCase().includes(query) ||
+            item.surveyName.toLowerCase().includes(query) ||
+            item.voteCount.toString().includes(query)
+        );
+      }
+      if (this.sortKey) {
+        filtered.sort((a, b) => {
+          let valueA = a[this.sortKey];
+          let valueB = b[this.sortKey];
+          if (this.sortKey === "voteCount") {
+            valueA = Number(valueA);
+            valueB = Number(valueB);
+          } else {
+            valueA = valueA.toLowerCase();
+            valueB = valueB.toLowerCase();
+          }
+          if (this.sortOrder === "asc") {
+            return valueA > valueB ? 1 : -1;
+          } else {
+            return valueA < valueB ? 1 : -1;
+          }
+        });
+      }
+      return filtered;
+    },
     paginatedData() {
       const start = (this.currentPage - 1) * this.itemsPerPage;
       const end = start + this.itemsPerPage;
-      return this.apiData.slice(start, end);
+      return this.filteredData.slice(start, end);
     },
     totalPages() {
-      return Math.ceil(this.apiData.length / this.itemsPerPage);
+      return Math.ceil(this.filteredData.length / this.itemsPerPage);
     },
   },
   methods: {
@@ -363,6 +411,7 @@ export default {
           imageName: item.photoTitle,
           surveyName: item.surveyName,
           voteCount: item.voteUserCount,
+          originaltitle: item.originalTitle,
         }));
 
         if (this.apiData.length === 0) {
@@ -373,6 +422,15 @@ export default {
         this.noDataMessage = "Veri çekilirken hata oluştu";
         this.apiData = [];
       }
+    },
+    sort(key) {
+      if (this.sortKey === key) {
+        this.sortOrder = this.sortOrder === "asc" ? "desc" : "asc";
+      } else {
+        this.sortKey = key;
+        this.sortOrder = "asc";
+      }
+      this.currentPage = 1; // Sıralama değiştiğinde sayfayı sıfırla
     },
     openAddModal() {
       this.newImageUrl = "";
@@ -407,6 +465,7 @@ export default {
           imageName: this.newImageName,
           surveyName: this.newSurveyName,
           voteCount: this.newVoteCount,
+          originaltitle: this.newImageName, // Assuming originaltitle matches imageName
         });
         this.closeAddModal();
       } else {
@@ -439,6 +498,7 @@ export default {
         this.selectedContent.imageName = this.editImageName;
         this.selectedContent.surveyName = this.editSurveyName;
         this.selectedContent.voteCount = this.editVoteCount;
+        this.selectedContent.originaltitle = this.editImageName; // Update originaltitle
         this.closeEditModal();
       } else {
         alert("Resim adı ve anket adı boş olamaz!");
@@ -481,6 +541,26 @@ export default {
 </script>
 
 <style scoped>
+/* Mevcut stiller korunuyor, yeni eklemeler aşağıda */
+.search-container {
+  padding: 10px 20px;
+}
+
+.sortable {
+  cursor: pointer;
+  position: relative;
+}
+
+.sortable:hover {
+  background-color: #2b4ba1; /* Hafif hover efekti */
+}
+
+.sortable span {
+  margin-left: 5px;
+  font-size: 0.8rem;
+}
+
+/* Mevcut stiller */
 .container {
   width: 100%;
   max-width: 100%;

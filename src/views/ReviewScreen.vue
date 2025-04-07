@@ -16,7 +16,7 @@
           <div class="col-12 col-md-8 info-container">
             <h5>Görsel Bilgileri</h5>
             <p class="text-xs font-weight-bold">
-              Resim Adı: {{ imageName || "Belirtilmemiş" }}
+              Resim Adı: {{ originalImageName || "Belirtilmemiş" }}
             </p>
             <h5>Değerlendirme Bilgileri</h5>
             <p class="text-xs font-weight-bold">
@@ -116,6 +116,7 @@ export default {
     return {
       imageUrl: "",
       imageName: "",
+      originalImageName :"",
       totalReviews: 0,
       totalScore: 0,
       comments: [],
@@ -146,6 +147,7 @@ export default {
         this.imageUrl =
           `https://localhost:7263/img/${data.imageInfo?.imageUrl}` || "";
         this.imageName = data.imageInfo?.imageName || "";
+        this.originalImageName = data.imageInfo?.originalImageName || "";
         this.totalReviews = data.reviewSummary?.totalReviews ?? 0; // null veya undefined ise 0
         this.totalScore = data.reviewSummary?.totalScore ?? 0; // null veya undefined ise 0
         this.comments = data.comments || [];

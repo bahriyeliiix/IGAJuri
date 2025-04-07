@@ -10,6 +10,15 @@
         >
           Yeni Ekle
         </button>
+        <!-- Arama Alanı -->
+        <div class="search-container mt-3">
+          <input
+            v-model="searchQuery"
+            type="text"
+            class="form-control"
+            placeholder="Anket Adı, Oluşturulma Tarihi veya Bitiş Tarihi ile Ara..."
+          />
+        </div>
       </div>
       <div class="card-body">
         <div class="table-responsive">
@@ -18,14 +27,30 @@
               <tr>
                 <th>Sıra No</th>
                 <th>Id</th>
-                <th>Anket Adı</th>
-                <th>Oluşturulma Tarihi</th>
+                <th class="sortable" @click="sort('surveyName')">
+                  Anket Adı
+                  <span v-if="sortKey === 'surveyName'">
+                    {{ sortOrder === "asc" ? "↑" : "↓" }}
+                  </span>
+                </th>
+                <th class="sortable" @click="sort('createdDate')">
+                  Oluşturulma Tarihi
+                  <span v-if="sortKey === 'createdDate'">
+                    {{ sortOrder === "asc" ? "↑" : "↓" }}
+                  </span>
+                </th>
+                <th class="sortable" @click="sort('plannedEndDate')">
+                  Planlanan Bitiş Tarihi
+                  <span v-if="sortKey === 'plannedEndDate'">
+                    {{ sortOrder === "asc" ? "↑" : "↓" }}
+                  </span>
+                </th>
                 <th>İşlemler</th>
               </tr>
             </thead>
             <tbody>
               <tr v-if="paginatedData.length === 0">
-                <td colspan="5" class="text-center">
+                <td colspan="6" class="text-center">
                   <span class="text-sm font-weight-bold">{{
                     noDataMessage
                   }}</span>
@@ -35,7 +60,8 @@
                 <td>{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
                 <td>{{ item.id }}</td>
                 <td>{{ item.surveyName }}</td>
-                <td>{{ item.createdDate }}</td>
+                <td>{{ formatDate(item.createdDate) }}</td>
+                <td>{{ formatDate(item.plannedEndDate) }}</td>
                 <td class="action-buttons">
                   <template v-if="userRole === 1">
                     <button
@@ -56,9 +82,8 @@
                     >
                       Düzenle
                     </button>
-                    <!-- <button                      class="btn btn-danger btn-sm mx-1"                      @click="openDeleteModal(item.id)"                    >                      Sil                    </button>  -->
                     <button
-                      v-if="!item.isDeleted"
+                      v-if="item.isActive"
                       class="btn btn-secondary btn-sm mx-1"
                       @click="passivateSurvey(item.id)"
                     >
@@ -118,7 +143,7 @@
           </button>
         </div>
         <div class="total-data text-right mt-2">
-          Toplam Veri: {{ apiData.length }}
+          Toplam Veri: {{ filteredData.length }}
         </div>
       </div>
     </div>
@@ -184,6 +209,13 @@
             required
             @input="validateAddForm"
           />
+          <!-- <input
+            :value="formattedDate"
+            type="text"
+            class="form-control mt-2"
+            placeholder="GG-AA-YYYY"
+            readonly
+          /> -->
           <div v-if="addFormErrors.surveyDate" class="invalid-feedback">
             Tarih zorunludur
           </div>
@@ -203,6 +235,7 @@
         </div>
       </div>
     </div>
+
     <!-- Düzenle Modal -->
     <div
       v-if="showEditModal"
@@ -211,37 +244,77 @@
     >
       <div class="modal-content">
         <h5>Anket Düzenle (ID: {{ selectedSurvey.id }})</h5>
-        <input
-          v-model="editSurveyName"
-          type="text"
-          class="form-control mb-3"
-          placeholder="Anket Adı"
-        />
-        <textarea
-          v-model="editSurveyDescription"
-          class="form-control mb-3"
-          placeholder="Açıklama"
-          rows="3"
-        ></textarea>
-        <div class="input-group mb-3">
+        <div class="form-group">
+          <label>Anket Adı <span class="required">*</span></label>
           <input
-            v-model="editSurveyPath"
+            v-model="editSurveyName"
             type="text"
-            class="form-control"
-            placeholder="Dosya Yolu"
+            class="form-control mb-3"
+            :class="{ 'is-invalid': editFormErrors.surveyName }"
+            placeholder="Anket Adı"
+            required
+            @input="validateEditForm"
+          />
+          <div v-if="editFormErrors.surveyName" class="invalid-feedback">
+            Anket adı zorunludur
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Açıklama</label>
+          <textarea
+            v-model="editSurveyDescription"
+            class="form-control mb-3"
+            placeholder="Açıklama"
+            rows="3"
+          ></textarea>
+        </div>
+        <div class="form-group">
+          <label>Dosya Yolu <span class="required">*</span></label>
+          <div class="input-group mb-3">
+            <input
+              v-model="editSurveyPath"
+              type="text"
+              class="form-control"
+              :class="{ 'is-invalid': editFormErrors.surveyPath }"
+              placeholder="Dosya Yolu"
+              readonly
+              required
+            />
+            <button class="btn btn-outline-secondary" @click="openFolderDialog">
+              Klasör Seç
+            </button>
+          </div>
+          <div v-if="editFormErrors.surveyPath" class="invalid-feedback">
+            Dosya yolu zorunludur
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Planlanan Bitiş Tarihi <span class="required">*</span></label>
+          <input
+            v-model="editSurveyPlannedEndDate"
+            type="date"
+            class="form-control mb-3"
+            :class="{ 'is-invalid': editFormErrors.surveyDate }"
+            required
+            @input="validateEditForm"
+          />
+          <input
+            :value="editFormattedDate"
+            type="text"
+            class="form-control mt-2"
+            placeholder="GG-AA-YYYY"
             readonly
           />
-          <button class="btn btn-outline-secondary" @click="openFolderDialog">
-            Klasör Seç
-          </button>
+          <div v-if="editFormErrors.surveyDate" class="invalid-feedback">
+            Tarih zorunludur
+          </div>
         </div>
-        <input
-          v-model="editSurveyPlannedEndDate"
-          type="date"
-          class="form-control mb-3"
-        />
         <div class="modal-buttons">
-          <button class="btn btn-primary" @click="saveEditSurvey">
+          <button
+            class="btn btn-primary"
+            @click="saveEditSurvey"
+            :disabled="!isEditFormValid"
+          >
             Kaydet
           </button>
           <button class="btn btn-secondary" @click="closeEditModal">
@@ -347,6 +420,7 @@
 
 <script>
 import axios from "axios";
+import { format } from "date-fns";
 import FolderTree from "./components/FolderTree.vue";
 
 export default {
@@ -360,7 +434,13 @@ export default {
         surveyPath: false,
         surveyDate: false,
       },
+      editFormErrors: {
+        surveyName: false,
+        surveyPath: false,
+        surveyDate: false,
+      },
       isAddFormValid: false,
+      isEditFormValid: false,
       apiData: [],
       jurors: [],
       folderTree: null,
@@ -385,51 +465,112 @@ export default {
       selectedJurors: [],
       userRole: null,
       userId: null,
+      searchQuery: "",
+      sortKey: "",
+      sortOrder: "asc",
     };
   },
   computed: {
+    formattedDate() {
+      return this.newSurveyPlannedEndDate
+        ? format(new Date(this.newSurveyPlannedEndDate), "dd-MM-yyyy")
+        : "";
+    },
+    editFormattedDate() {
+      return this.editSurveyPlannedEndDate
+        ? format(new Date(this.editSurveyPlannedEndDate), "dd-MM-yyyy")
+        : "";
+    },
+    filteredData() {
+      let filtered = [...this.apiData];
+      if (this.searchQuery) {
+        const query = this.searchQuery.toLowerCase();
+        filtered = filtered.filter(
+          (item) =>
+            item.surveyName.toLowerCase().includes(query) ||
+            this.formatDate(item.createdDate)
+              .toLowerCase()
+              .includes(query) ||
+            this.formatDate(item.plannedEndDate)
+              .toLowerCase()
+              .includes(query)
+        );
+      }
+      if (this.sortKey) {
+        filtered.sort((a, b) => {
+          let valueA = a[this.sortKey];
+          let valueB = b[this.sortKey];
+          if (
+            this.sortKey === "createdDate" ||
+            this.sortKey === "plannedEndDate"
+          ) {
+            valueA = new Date(valueA);
+            valueB = new Date(valueB);
+          } else {
+            valueA = valueA.toLowerCase();
+            valueB = valueB.toLowerCase();
+          }
+          if (this.sortOrder === "asc") {
+            return valueA > valueB ? 1 : -1;
+          } else {
+            return valueA < valueB ? 1 : -1;
+          }
+        });
+      }
+      return filtered;
+    },
     paginatedData() {
       const start = (this.currentPage - 1) * this.itemsPerPage;
       const end = start + this.itemsPerPage;
-      return this.apiData.slice(start, end);
+      return this.filteredData.slice(start, end);
     },
     totalPages() {
-      return Math.ceil(this.apiData.length / this.itemsPerPage);
+      return Math.ceil(this.filteredData.length / this.itemsPerPage);
     },
   },
   methods: {
+    formatDate(date) {
+      if (!date) return "";
+      try {
+        return format(new Date(date), "dd-MM-yyyy");
+      } catch {
+        return date.split("T")[0];
+      }
+    },
     validateAddForm() {
       this.addFormErrors = {
         surveyName: !this.newSurveyName.trim(),
         surveyPath: !this.newSurveyPath.trim(),
         surveyDate: !this.newSurveyPlannedEndDate,
       };
-
       this.isAddFormValid = !Object.values(this.addFormErrors).some(
         (error) => error
       );
     },
-
+    validateEditForm() {
+      this.editFormErrors = {
+        surveyName: !this.editSurveyName.trim(),
+        surveyPath: !this.editSurveyPath.trim(),
+        surveyDate: !this.editSurveyPlannedEndDate,
+      };
+      this.isEditFormValid = !Object.values(this.editFormErrors).some(
+        (error) => error
+      );
+    },
     async saveNewSurvey() {
       this.validateAddForm();
+      if (!this.isAddFormValid) return;
 
-      if (!this.isAddFormValid) {
-        return;
-      }
-
-      // Orijinal kaydetme işlemi
-      if (!this.newSurveyName.trim()) return alert("Anket adı boş olamaz!");
       try {
         const token = localStorage.getItem("token");
         const newSurvey = {
           id: 0,
           isDeleted: false,
+          isActive: true,
           title: this.newSurveyName,
           description: this.newSurveyDescription,
           path: this.newSurveyPath,
-          plannedEndDate: this.newSurveyPlannedEndDate
-            ? new Date(this.newSurveyPlannedEndDate).toISOString()
-            : null,
+          plannedEndDate: this.newSurveyPlannedEndDate || null,
         };
         const response = await axios.post(
           "https://localhost:7263/api/Survey/CreateOrEditSurvey",
@@ -451,7 +592,8 @@ export default {
           filePath: response.data.data.path || "",
           plannedEndDate: response.data.data.plannedEndDate || "",
           jurors: [],
-          isDeleted: false,
+          isDeleted: response.data.data.isDeleted || false,
+          isActive: response.data.data.isActive ?? true,
         });
         this.closeAddModal();
       } catch (error) {
@@ -459,12 +601,10 @@ export default {
         alert("Anket eklenirken hata oluştu!");
       }
     },
-
     fetchUserRole() {
       this.userRole = parseInt(localStorage.getItem("role"), 10) || null;
       this.userId = parseInt(localStorage.getItem("userId"), 10) || null;
     },
-
     async fetchSurveys() {
       try {
         const token = localStorage.getItem("token");
@@ -485,6 +625,7 @@ export default {
           plannedEndDate: item.plannedEndDate || "",
           jurors: item.jurors || [],
           isDeleted: item.isDeleted || false,
+          isActive: item.isActive ?? true,
         }));
         this.noDataMessage = this.apiData.length === 0 ? "Veri yok" : "";
       } catch (error) {
@@ -492,7 +633,6 @@ export default {
         this.noDataMessage = "Veri çekilirken hata oluştu";
       }
     },
-
     async fetchJurors(surveyId) {
       try {
         const token = localStorage.getItem("token");
@@ -508,7 +648,6 @@ export default {
         this.jurors = [];
       }
     },
-
     async openFolderDialog() {
       try {
         const token = localStorage.getItem("token");
@@ -529,18 +668,20 @@ export default {
         alert("Klasörler yüklenirken hata oluştu!");
       }
     },
-
     selectFolder(path) {
-      if (this.showAddModal) this.newSurveyPath = path;
-      else if (this.showEditModal) this.editSurveyPath = path;
+      if (this.showAddModal) {
+        this.newSurveyPath = path;
+        this.validateAddForm();
+      } else if (this.showEditModal) {
+        this.editSurveyPath = path;
+        this.validateEditForm();
+      }
       this.closeFolderModal();
     },
-
     closeFolderModal() {
       this.showFolderModal = false;
       this.folderTree = null;
     },
-
     async passivateSurvey(id) {
       try {
         const token = localStorage.getItem("token");
@@ -548,14 +689,13 @@ export default {
           headers: { Authorization: `Bearer ${token}` },
         });
         const survey = this.apiData.find((item) => item.id === id);
-        if (survey) survey.isDeleted = true;
+        if (survey) survey.isActive = false;
         alert("Anket başarıyla pasifleştirildi");
       } catch (error) {
         console.error("Pasifleştirme hatası:", error);
         alert("Anket pasifleştirilirken hata oluştu!");
       }
     },
-
     async activateSurvey(id) {
       try {
         const token = localStorage.getItem("token");
@@ -563,14 +703,13 @@ export default {
           headers: { Authorization: `Bearer ${token}` },
         });
         const survey = this.apiData.find((item) => item.id === id);
-        if (survey) survey.isDeleted = false;
+        if (survey) survey.isActive = true;
         alert("Anket başarıyla aktifleştirildi");
       } catch (error) {
         console.error("Aktifleştirme hatası:", error);
         alert("Anket aktifleştirilirken hata oluştu!");
       }
     },
-
     goToScore(id) {
       this.$router.push(`/survey/${id}/${this.userId}`);
     },
@@ -580,42 +719,45 @@ export default {
     goToSurveyResults(id) {
       this.$router.push(`/survey-detail-chart/${id}`);
     },
-
     openAddModal() {
       this.newSurveyName = "";
       this.newSurveyDescription = "";
       this.newSurveyPath = "";
       this.newSurveyPlannedEndDate = "";
+      this.addFormErrors = { surveyName: false, surveyPath: false, surveyDate: false };
+      this.isAddFormValid = false;
       this.showAddModal = true;
     },
     closeAddModal() {
       this.showAddModal = false;
     },
-
     openEditModal(survey) {
       this.selectedSurvey = survey;
       this.editSurveyName = survey.surveyName;
       this.editSurveyDescription = survey.description;
       this.editSurveyPath = survey.filePath;
-      this.editSurveyPlannedEndDate = survey.plannedEndDate?.slice(0, 10) || "";
+      this.editSurveyPlannedEndDate = survey.plannedEndDate?.split("T")[0] || "";
+      this.editFormErrors = { surveyName: false, surveyPath: false, surveyDate: false };
+      this.isEditFormValid = true;
       this.showEditModal = true;
     },
     closeEditModal() {
       this.showEditModal = false;
     },
     async saveEditSurvey() {
-      if (!this.editSurveyName.trim()) return alert("Anket adı boş olamaz!");
+      this.validateEditForm();
+      if (!this.isEditFormValid) return;
+
       try {
         const token = localStorage.getItem("token");
         const updatedSurvey = {
           id: this.selectedSurvey.id,
           isDeleted: this.selectedSurvey.isDeleted,
+          isActive: this.selectedSurvey.isActive,
           title: this.editSurveyName,
           description: this.editSurveyDescription,
           path: this.editSurveyPath,
-          plannedEndDate: this.editSurveyPlannedEndDate
-            ? new Date(this.editSurveyPlannedEndDate).toISOString()
-            : null,
+          plannedEndDate: this.editSurveyPlannedEndDate || null,
         };
         await axios.post(
           "https://localhost:7263/api/Survey/CreateOrEditSurvey",
@@ -631,9 +773,7 @@ export default {
           surveyName: this.editSurveyName,
           description: this.editSurveyDescription,
           filePath: this.editSurveyPath,
-          plannedEndDate: this.editSurveyPlannedEndDate
-            ? new Date(this.editSurveyPlannedEndDate).toISOString()
-            : null,
+          plannedEndDate: this.editSurveyPlannedEndDate || null,
         });
         this.closeEditModal();
       } catch (error) {
@@ -641,7 +781,6 @@ export default {
         alert("Anket güncellenirken hata oluştu!");
       }
     },
-
     openJuryModal(survey) {
       this.selectedSurvey = survey;
       this.fetchJurors(survey.id).then(() => {
@@ -677,7 +816,6 @@ export default {
         alert("Jüriler güncellenirken hata oluştu!");
       }
     },
-
     openDeleteModal(id) {
       this.deleteSurveyId = id;
       this.showDeleteModal = true;
@@ -703,7 +841,6 @@ export default {
         alert("Anket silinirken hata oluştu!");
       }
     },
-
     prevPage() {
       if (this.currentPage > 1) this.currentPage--;
     },
@@ -712,6 +849,15 @@ export default {
     },
     goToPage(page) {
       if (page >= 1 && page <= this.totalPages) this.currentPage = page;
+    },
+    sort(key) {
+      if (this.sortKey === key) {
+        this.sortOrder = this.sortOrder === "asc" ? "desc" : "asc";
+      } else {
+        this.sortKey = key;
+        this.sortOrder = "asc";
+      }
+      this.currentPage = 1;
     },
   },
   mounted() {
@@ -724,12 +870,16 @@ export default {
 <style scoped>
 .container {
   width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
   padding: 20px;
 }
 
 .card {
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: none;
+  width: 100%;
   background-color: #fff;
 }
 
@@ -738,6 +888,25 @@ export default {
   padding: 12px 20px;
   border-bottom: 1px solid #e2e8f0;
   border-radius: 12px 12px 0 0;
+  text-align: left;
+}
+
+.search-container {
+  padding: 10px 20px;
+}
+
+.sortable {
+  cursor: pointer;
+  position: relative;
+}
+
+.sortable:hover {
+  background-color: #2b4ba1;
+}
+
+.sortable span {
+  margin-left: 5px;
+  font-size: 0.8rem;
 }
 
 .card-body {
@@ -746,11 +915,13 @@ export default {
 
 .table-responsive {
   overflow-x: auto;
+  width: 100%;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: auto;
 }
 
 .thead-dark {
@@ -758,10 +929,46 @@ export default {
   color: #fff;
 }
 
-th,
+th {
+  padding: 12px;
+  text-align: left;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
 td {
   padding: 12px;
   text-align: left;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+th:nth-child(1),
+td:nth-child(1) {
+  width: 10%;
+}
+th:nth-child(2),
+td:nth-child(2) {
+  width: 10%;
+}
+th:nth-child(3),
+td:nth-child(3) {
+  width: 25%;
+}
+th:nth-child(4),
+td:nth-child(4) {
+  width: 20%;
+}
+th:nth-child(5),
+td:nth-child(5) {
+  width: 20%;
+}
+th:nth-child(6),
+td:nth-child(6) {
+  width: 25%;
 }
 
 .table-hover tbody tr:hover {
@@ -770,24 +977,30 @@ td {
 
 .action-buttons {
   display: flex;
+  flex-wrap: nowrap;
   gap: 6px;
-  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 .btn {
   padding: 6px 12px;
   font-size: 0.8rem;
+  font-weight: 600;
   border-radius: 6px;
+  text-transform: uppercase;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .btn-primary {
   background-color: #60a5fa;
-  color: #fff;
   border: none;
+  color: #fff;
 }
 .btn-primary:hover {
   background-color: #3b82f6;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .btn-success {
@@ -797,6 +1010,7 @@ td {
 }
 .btn-success:hover {
   background-color: #10b981;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .btn-warning {
@@ -806,6 +1020,7 @@ td {
 }
 .btn-warning:hover {
   background-color: #f59e0b;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .btn-danger {
@@ -815,6 +1030,7 @@ td {
 }
 .btn-danger:hover {
   background-color: #ef4444;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .btn-secondary {
@@ -824,6 +1040,8 @@ td {
 }
 .btn-secondary:hover {
   background-color: #cbd5e1;
+  color: #334155;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .btn-dark {
@@ -833,6 +1051,7 @@ td {
 }
 .btn-dark:hover {
   background-color: #1e293b;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .btn-info {
@@ -842,12 +1061,15 @@ td {
 }
 .btn-info:hover {
   background-color: #0ea5e9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .btn-outline-primary {
-  border: 1px solid #60a5fa;
-  color: #60a5fa;
   background-color: #fff;
+  color: #60a5fa;
+  border: 1px solid #60a5fa;
+  padding: 6px 12px;
+  font-size: 0.85rem;
 }
 .btn-outline-primary:hover {
   background-color: #60a5fa;
@@ -881,7 +1103,9 @@ td {
   border: 1px solid #60a5fa;
   background-color: #fff;
   color: #60a5fa;
+  font-size: 0.85rem;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 .page-btn:hover {
   background-color: #60a5fa;
@@ -891,11 +1115,14 @@ td {
   background-color: #3b82f6;
   color: #fff;
   border-color: #3b82f6;
+  font-weight: 600;
 }
 
 .total-data {
   font-size: 0.9rem;
   color: #475569;
+  text-align: right;
+  padding: 5px;
 }
 
 .modal-overlay {
@@ -918,19 +1145,29 @@ td {
   width: 400px;
   max-width: 90%;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e2e8f0;
 }
-
 .modal-content h5 {
   margin-bottom: 15px;
   color: #1e3a8a;
   font-weight: 600;
+  font-size: 1.1rem;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .form-control {
+  width: 100%;
   padding: 8px;
   border: 1px solid #e2e8f0;
   border-radius: 6px;
   font-size: 0.9rem;
+}
+
+.form-control[readonly] {
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #475569;
 }
 
 .input-group {
@@ -947,49 +1184,42 @@ td {
   padding: 10px;
   border: 1px solid #e2e8f0;
   border-radius: 6px;
-  background-color: #f8fafc;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .jury-item {
   display: flex;
   align-items: center;
-  padding: 8px 0;
+  padding: 10px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+.jury-item:last-child {
+  border-bottom: none;
 }
 
 .form-check-input {
-  margin-right: 10px;
+  margin-right: 12px;
 }
 
 .form-check-label {
-  color: #475569;
+  color: #1e3a8a;
   font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.4;
 }
-
+.jury-item:hover {
+  background-color: #f1f5f9;
+}
 .modal-buttons {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
   margin-top: 20px;
+  padding-top: 10px;
+  border-top: 1px solid #e2e8f0;
 }
 
-@media (max-width: 768px) {
-  .action-buttons {
-    gap: 4px;
-  }
-  .btn {
-    padding: 5px 10px;
-    font-size: 0.75rem;
-  }
-  .table th,
-  .table td {
-    padding: 8px;
-    font-size: 0.75rem;
-  }
-  .modal-content {
-    width: 90%;
-  }
-}
-/* Ana component'in style bölümüne ekleyin */
 .modal-overlay .folder-modal {
   width: 500px;
   max-width: 95%;
@@ -1010,7 +1240,7 @@ td {
   display: flex;
   align-items: center;
   font-size: 1.1rem;
-  color: #1e40af;
+  color: #1e3a8a;
 }
 
 .modal-header h5 i {
@@ -1066,6 +1296,7 @@ td {
 .fa-info-circle {
   color: #6b7280;
 }
+
 .required {
   color: #ef4444;
 }
@@ -1083,5 +1314,47 @@ td {
 
 .form-group {
   margin-bottom: 1rem;
+}
+
+@media (min-width: 1200px) {
+  .container {
+    padding: 20px 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .card-header {
+    text-align: center;
+  }
+  .total-data {
+    text-align: center;
+  }
+  .action-buttons {
+    gap: 4px;
+  }
+  .btn {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+  }
+  th,
+  td {
+    padding: 8px;
+    font-size: 0.75rem;
+  }
+  .modal-content {
+    width: 90%;
+  }
+}
+
+@media (max-width: 576px) {
+  .modal-content {
+    width: 95%;
+    padding: 15px;
+  }
+  .btn-primary,
+  .btn-secondary {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
 }
 </style>
