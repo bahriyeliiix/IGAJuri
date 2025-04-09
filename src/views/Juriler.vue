@@ -113,7 +113,11 @@
       </div>
 
       <!-- Modallar -->
-      <div v-if="showAddModal" class="modal-overlay" @click.self="closeAddModal">
+      <div
+        v-if="showAddModal"
+        class="modal-overlay"
+        @click.self="closeAddModal"
+      >
         <div class="modal-content">
           <h5>Yeni Jüri Ekle</h5>
           <input
@@ -136,7 +140,10 @@
               placeholder="Şifre"
             />
             <div class="input-group-append">
-              <button class="btn btn-outline-secondary" @click="generatePassword">
+              <button
+                class="btn btn-outline-secondary"
+                @click="generatePassword"
+              >
                 Şifre Üret
               </button>
             </div>
@@ -159,8 +166,14 @@
           <h5>Jüri Detayları (ID: {{ selectedJury.id }})</h5>
           <div class="details-content">
             <p><strong>Ad Soyad:</strong> {{ selectedJury.juryFullName }}</p>
-            <p><strong>E-posta:</strong> {{ selectedJury.email || "Belirtilmemiş" }}</p>
-            <p><strong>Oluşturulma Tarihi:</strong> {{ selectedJury.createdDate }}</p>
+            <p>
+              <strong>E-posta:</strong>
+              {{ selectedJury.email || "Belirtilmemiş" }}
+            </p>
+            <p>
+              <strong>Oluşturulma Tarihi:</strong>
+              {{ selectedJury.createdDate }}
+            </p>
           </div>
           <div class="modal-buttons">
             <button class="btn btn-secondary" @click="closeDetailsModal">
@@ -240,12 +253,14 @@
 </template>
 
 <script>
+import Swal from "sweetalert2";
+
 export default {
   name: "Juriler",
   data() {
     return {
       apiData: [],
-      baseUrl: "https://localhost:7263",
+      baseUrl: "https://scorezone.igairport.aero:7263",
       token: null,
       noDataMessage: "",
       currentPage: 1,
@@ -299,7 +314,8 @@ export default {
             id: item.id,
             juryFullName: item.username,
             email: item.email,
-            createdDate: item.createdDate || new Date().toISOString().split("T")[0],
+            createdDate:
+              item.createdDate || new Date().toISOString().split("T")[0],
           }));
         } else {
           this.noDataMessage = "Jüri listesi yüklenemedi.";
@@ -319,7 +335,7 @@ export default {
         const randomIndex = Math.floor(Math.random() * charset.length);
         password += charset[randomIndex];
       }
-      this.newJuryPassword = password; // Yeni ekleme için
+      this.newJuryPassword = password;
     },
 
     toggleResetPassword() {
@@ -341,15 +357,29 @@ export default {
 
     async saveNewJury() {
       if (!this.newJuryFullName.trim() || !this.newJuryEmail.trim() || !this.newJuryPassword.trim()) {
-        alert("Tüm alanlar doldurulmalıdır!");
+        Swal.fire({
+          icon: "warning",
+          title: "Eksik Bilgi",
+          text: "Tüm alanlar doldurulmalıdır!",
+        });
         return;
       }
+
+      Swal.fire({
+        title: "Kaydediliyor...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
       const payload = {
         username: this.newJuryFullName,
         email: this.newJuryEmail,
         password: this.newJuryPassword,
         role: 2,
       };
+
       try {
         const response = await fetch(`${this.baseUrl}/api/User/CreateOrEditUser`, {
           method: "POST",
@@ -360,6 +390,7 @@ export default {
           body: JSON.stringify(payload),
         });
         const result = await response.json();
+
         if (result.statusCode === 200) {
           this.apiData.push({
             id: result.data.id,
@@ -367,21 +398,49 @@ export default {
             email: this.newJuryEmail,
             createdDate: new Date().toISOString().split("T")[0],
           });
+
+          Swal.fire({
+            icon: "success",
+            title: "Başarılı",
+            text: "Yeni jüri başarıyla kaydedildi!",
+            timer: 2000,
+            showConfirmButton: false,
+          });
           this.closeAddModal();
         } else {
-          alert("Jüri eklenemedi!");
+          Swal.fire({
+            icon: "error",
+            title: "Hata",
+            text: "Jüri eklenemedi!",
+          });
         }
       } catch (error) {
-        console.error("Hata:", error);
-        alert("Bir hata oluştu.");
+        Swal.fire({
+          icon: "error",
+          title: "Hata",
+          text: `Jüri eklenirken hata oluştu: ${error.message}`,
+        });
       }
     },
 
     async saveEditJury() {
       if (!this.editJuryFullName.trim() || !this.editJuryEmail.trim()) {
-        alert("Tüm alanlar doldurulmalıdır!");
+        Swal.fire({
+          icon: "warning",
+          title: "Eksik Bilgi",
+          text: "Tüm alanlar doldurulmalıdır!",
+        });
         return;
       }
+
+      Swal.fire({
+        title: "Güncelleniyor...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
       const payload = {
         id: this.selectedJury.id,
         username: this.editJuryFullName,
@@ -391,6 +450,7 @@ export default {
       if (this.resetPassword && this.editJuryPassword.trim()) {
         payload.password = this.editJuryPassword;
       }
+
       try {
         const response = await fetch(`${this.baseUrl}/api/User/CreateOrEditUser`, {
           method: "POST",
@@ -401,20 +461,44 @@ export default {
           body: JSON.stringify(payload),
         });
         const result = await response.json();
+
         if (result.statusCode === 200) {
           this.selectedJury.juryFullName = this.editJuryFullName;
           this.selectedJury.email = this.editJuryEmail;
+
+          Swal.fire({
+            icon: "success",
+            title: "Başarılı",
+            text: "Jüri başarıyla güncellendi!",
+            timer: 2000,
+            showConfirmButton: false,
+          });
           this.closeEditModal();
         } else {
-          alert("Jüri güncellenemedi!");
+          Swal.fire({
+            icon: "error",
+            title: "Hata",
+            text: "Jüri güncellenemedi!",
+          });
         }
       } catch (error) {
-        console.error("Hata:", error);
-        alert("Bir hata oluştu.");
+        Swal.fire({
+          icon: "error",
+          title: "Hata",
+          text: `Güncelleme sırasında hata oluştu: ${error.message}`,
+        });
       }
     },
 
     async confirmDelete() {
+      Swal.fire({
+        title: "Siliniyor...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
       try {
         const response = await fetch(`${this.baseUrl}/api/User/DeleteUser/${this.deleteJuryId}`, {
           method: "DELETE",
@@ -424,15 +508,31 @@ export default {
           },
         });
         const result = await response.json();
+
         if (result.statusCode === 200) {
           this.apiData = this.apiData.filter((item) => item.id !== this.deleteJuryId);
+
+          Swal.fire({
+            icon: "success",
+            title: "Başarılı",
+            text: "Jüri başarıyla silindi!",
+            timer: 2000,
+            showConfirmButton: false,
+          });
           this.closeDeleteModal();
         } else {
-          alert("Jüri silinemedi!");
+          Swal.fire({
+            icon: "error",
+            title: "Hata",
+            text: "Jüri silinemedi!",
+          });
         }
       } catch (error) {
-        console.error("Hata:", error);
-        alert("Bir hata oluştu.");
+        Swal.fire({
+          icon: "error",
+          title: "Hata",
+          text: `Silme sırasında hata oluştu: ${error.message}`,
+        });
       }
     },
 
@@ -465,7 +565,20 @@ export default {
     },
     openDeleteModal(id) {
       this.deleteJuryId = id;
-      this.showDeleteModal = true;
+      Swal.fire({
+        title: "Silmek istediğinizden emin misiniz?",
+        text: `Jüri ID ${id} silinecek!`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Evet, Sil!",
+        cancelButtonText: "Hayır",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.confirmDelete();
+        }
+      });
     },
     closeDeleteModal() {
       this.showDeleteModal = false;

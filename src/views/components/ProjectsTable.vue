@@ -122,7 +122,7 @@ export default {
       }
       try {
         const response = await axios.post(
-          "https://localhost:7263/api/Dashboard/last-emergency",
+          "https://scorezone.igairport.aero:7263/api/Dashboard/last-emergency",
           {},
           {
             headers: {

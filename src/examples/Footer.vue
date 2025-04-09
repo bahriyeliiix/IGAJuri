@@ -11,17 +11,15 @@ const store = useStore();
             class="text-sm text-center copyright text-muted"
             :class="store.state.isRTL ? 'text-lg-end' : 'text-lg-start'"
           >
-            ©
-            {{ new Date().getFullYear() }}
-            <!-- , made with
-            <i class="fa fa-heart"></i> by
+            © {{ new Date().getFullYear() }} 
             <a
-              href=""
+              href="https://ist.aero/"
               class="font-weight-bold"
               target="_blank"
-              >xxxx</a
             >
-            for a better web. -->
+              IST BİLİŞİM
+            </a>
+            TARAFINDAN GELİŞTİRİLMİŞTİR. 
           </div>
         </div>
         <!-- <div class="col-lg-6">

@@ -1,30 +1,52 @@
 <template>
   <div class="container">
     <!-- Üst Kısım -->
-    <div class="card upper-section mb-4">
-      <div class="card-body">
-        <div class="row align-items-start">
-          <div class="col-12 col-md-4 image-container">
+    <div class="row upper-section">
+      <!-- Sol Üst Resim -->
+      <div class="col-12 col-md-6 col-lg-5 left-image mb-3">
+        <div class="card">
+          <div class="card-body">
             <img
               :src="
-                imageUrl || 'https://via.placeholder.com/200x200?text=Resim+Yok'
+                imageUrl || 'https://via.placeholder.com/400x500?text=Resim+Yok'
               "
               alt="API'den gelen resim"
               class="responsive-image"
             />
           </div>
-          <div class="col-12 col-md-8 info-container">
-            <h5>Görsel Bilgileri</h5>
-            <p class="text-xs font-weight-bold">
-              Resim Adı: {{ originalImageName || "Belirtilmemiş" }}
-            </p>
-            <h5>Değerlendirme Bilgileri</h5>
-            <p class="text-xs font-weight-bold">
-              Toplam Değerlendirme Sayısı: {{ totalReviews || 0 }}
-            </p>
-            <p class="text-xs font-weight-bold">
-              Toplam Değerlendirme Puanı: {{ totalScore || 0 }}
-            </p>
+        </div>
+      </div>
+
+      <!-- Sağ Üst Bilgiler -->
+      <div class="col-12 col-md-6 col-lg-7 right-info mb-3">
+        <div class="card">
+          <div class="card-body">
+            <div class="row info-boxes">
+              <div class="col-12 col-sm-4 mb-2">
+                <div class="info-box">
+                  <h6>Resim Adı</h6>
+                  <p class="text-xs font-weight-bold">
+                    {{ originalImageName || "Belirtilmemiş" }}
+                  </p>
+                </div>
+              </div>
+              <div class="col-12 col-sm-4 mb-2">
+                <div class="info-box">
+                  <h6>Toplam Değerlendirme Sayısı</h6>
+                  <p class="text-xs font-weight-bold">
+                    {{ totalReviews || 0 }}
+                  </p>
+                </div>
+              </div>
+              <div class="col-12 col-sm-4 mb-2">
+                <div class="info-box">
+                  <h6>Toplam Değerlendirme Puanı</h6>
+                  <p class="text-xs font-weight-bold">
+                    {{ totalScore || 0 }}
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -32,13 +54,53 @@
 
     <!-- Alt Kısım -->
     <div class="row lower-section">
+      <!-- Değerlendirme Yapanlar -->
+      <div class="col-12 col-md-6 col-lg-4 mb-3">
+        <div class="card">
+          <div class="card-header">
+            <h5>Değerlendirme Yapanlar ({{ reviewers.length }})</h5>
+          </div>
+          <div class="card-body scrollable">
+            <ul>
+              <li
+                v-for="(person, index) in reviewers"
+                :key="index"
+                class="text-xs"
+              >
+                {{ index + 1 }}. {{ person || "Bilinmeyen Kişi" }}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Değerlendirme Beklenenler -->
+      <div class="col-12 col-md-6 col-lg-4 mb-3">
+        <div class="card">
+          <div class="card-header">
+            <h5>Değerlendirme Beklenenler ({{ pendingReviewers.length }})</h5>
+          </div>
+          <div class="card-body scrollable">
+            <ul>
+              <li
+                v-for="(person, index) in pendingReviewers"
+                :key="index"
+                class="text-xs"
+              >
+                {{ index + 1 }}. {{ person || "Bilinmeyen Kişi" }}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
       <!-- Yorumlar -->
-      <div class="col-12 col-md-6 comments-section mb-4">
+      <div class="col-12 col-md-12 col-lg-4 mb-3">
         <div class="card">
           <div class="card-header">
             <h5>Yorumlar ({{ comments.length }})</h5>
           </div>
-          <div class="card-body">
+          <div class="card-body scrollable">
             <div
               v-if="comments.length === 0"
               class="text-center text-xs font-weight-bold"
@@ -59,46 +121,9 @@
           </div>
         </div>
       </div>
-
-      <!-- Değerlendirme Listeleri -->
-      <div class="col-12 col-md-6 lists-section">
-        <div class="card mb-4">
-          <div class="card-header">
-            <h5>Değerlendirme Yapanlar ({{ reviewers.length }})</h5>
-          </div>
-          <div class="card-body">
-            <ul>
-              <li
-                v-for="(person, index) in reviewers"
-                :key="index"
-                class="text-xs"
-              >
-                {{ index + 1 }}. {{ person || "Bilinmeyen Kişi" }}
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <h5>Değerlendirme Beklenenler ({{ pendingReviewers.length }})</h5>
-          </div>
-          <div class="card-body">
-            <ul>
-              <li
-                v-for="(person, index) in pendingReviewers"
-                :key="index"
-                class="text-xs"
-              >
-                {{ index + 1 }}. {{ person || "Bilinmeyen Kişi" }}
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
-
 <script>
 import axios from "axios";
 
@@ -116,7 +141,7 @@ export default {
     return {
       imageUrl: "",
       imageName: "",
-      originalImageName :"",
+      originalImageName: "",
       totalReviews: 0,
       totalScore: 0,
       comments: [],
@@ -133,7 +158,7 @@ export default {
         const token = localStorage.getItem("token");
 
         const response = await axios.get(
-          `https://localhost:7263/api/Survey/review-screen/${this.surveyId}/${this.photoId}`,
+          `https://scorezone.igairport.aero:7263/api/Survey/review-screen/${this.surveyId}/${this.photoId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`, // Token'ı header'a ekliyoruz
@@ -145,7 +170,8 @@ export default {
         const data = response.data.data || {};
 
         this.imageUrl =
-          `https://localhost:7263/img/${data.imageInfo?.imageUrl}` || "";
+          `https://scorezone.igairport.aero:7263/img/${data.imageInfo?.imageUrl}` ||
+          "";
         this.imageName = data.imageInfo?.imageName || "";
         this.originalImageName = data.imageInfo?.originalImageName || "";
         this.totalReviews = data.reviewSummary?.totalReviews ?? 0; // null veya undefined ise 0
@@ -161,9 +187,7 @@ export default {
   },
 };
 </script>
-
 <style scoped>
-/* Mevcut stil kodlarınız aynen kalabilir, değişiklik gerekmiyor */
 .container {
   width: 100%;
   max-width: 100%;
@@ -175,21 +199,67 @@ export default {
   overflow: hidden;
 }
 
-.card {
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e2e8f0;
-  background-color: #fff;
-}
-
 .upper-section {
   flex: 0 0 auto;
   margin-bottom: 20px;
 }
 
+.left-image .responsive-image {
+  width: 100%;
+  height: auto; /* Resim kırpılmadan orijinal oranında gösterilecek */
+  max-height: 400px; /* Resim divi bir tık büyük */
+  object-fit: contain; /* Resim kırpılmadan div içinde yer alır */
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.right-info .card-body {
+  padding: 15px;
+}
+
+.info-boxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px; /* Kareler arasında boşluk */
+}
+
+.info-box {
+  background-color: #f8fafc;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  text-align: center;
+  flex: 1;
+  min-width: 0; /* Flex içinde taşmayı önler */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.info-box h6 {
+  color: #1e3a8a;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+.info-box p {
+  color: #475569;
+  margin: 0;
+  word-wrap: break-word; /* Uzun metinler için kırılma */
+}
+
 .lower-section {
   flex: 1;
   overflow-y: auto;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  background-color: #fff;
+  height: 100%;
 }
 
 .card-header {
@@ -211,38 +281,9 @@ export default {
   padding: 15px;
 }
 
-.image-container {
-  padding-right: 15px;
-}
-
-.responsive-image {
-  width: 100%;
-  max-height: 200px;
-  object-fit: cover;
-  border-radius: 6px;
-  border: 1px solid #e2e8f0;
-}
-
-.info-container {
-  padding-left: 15px;
-}
-
-.info-container h5 {
-  color: #1e3a8a;
-  font-weight: 600;
-  font-size: 1rem;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.info-container p {
-  color: #475569;
-  margin-bottom: 10px;
-}
-
-.comments-section .card {
-  height: 100%;
+.scrollable {
+  max-height: 250px; /* Liste ve yorumlar için kaydırma alanı */
+  overflow-y: auto;
 }
 
 .comment {
@@ -254,29 +295,19 @@ export default {
   border-bottom: none;
 }
 
-.comment p {
-  margin: 0;
-  color: #475569;
-}
-
-.lists-section .card {
-  height: 48%;
-  margin-bottom: 15px;
-}
-
-.lists-section ul {
+ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.lists-section li {
+li {
   padding: 8px 0;
   color: #475569;
   border-bottom: 1px solid #edf2f7;
 }
 
-.lists-section li:last-child {
+li:last-child {
   border-bottom: none;
 }
 
@@ -292,34 +323,71 @@ export default {
   font-size: 0.75rem;
 }
 
+@media (max-width: 1200px) {
+  .left-image {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+  .right-info {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+@media (max-width: 992px) {
+  .left-image {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  .right-info {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  .info-box {
+    flex: 0 0 calc(33.33% - 10px); /* 3 kare yan yana */
+  }
+  .lower-section > div {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+  .scrollable {
+    max-height: 200px;
+  }
+}
+
 @media (max-width: 768px) {
-  .container {
-    padding: 15px;
+  .lower-section > div {
+    flex: 0 0 100%;
+    max-width: 100%;
   }
-  .upper-section {
-    margin-bottom: 15px;
+  .left-image .responsive-image {
+    max-height: 350px;
   }
-  .image-container {
-    padding-right: 0;
-    margin-bottom: 15px;
+  .info-box {
+    flex: 0 0 calc(50% - 7.5px); /* 2 kare yan yana */
   }
-  .info-container {
-    padding-left: 0;
-  }
-  .responsive-image {
+  .scrollable {
     max-height: 150px;
   }
-  .comments-section,
-  .lists-section {
-    margin-bottom: 15px;
+}
+
+@media (max-width: 576px) {
+  .container {
+    padding: 10px;
   }
-  .lists-section .card {
-    height: auto;
+  .left-image .responsive-image {
+    max-height: 300px;
+  }
+  .info-box {
+    flex: 0 0 100%; /* 1 kare tam genişlik */
+  }
+  .info-box h6 {
+    font-size: 0.85rem;
+  }
+  .scrollable {
+    max-height: 120px;
   }
   .card-header h5 {
-    font-size: 0.9rem;
-  }
-  .info-container h5 {
     font-size: 0.9rem;
   }
   .text-xs {
@@ -327,24 +395,6 @@ export default {
   }
   .text-xxs {
     font-size: 0.7rem;
-  }
-}
-
-@media (max-width: 576px) {
-  .card-header {
-    padding: 10px 12px;
-  }
-  .card-body {
-    padding: 12px;
-  }
-  .comment {
-    padding: 8px 0;
-  }
-  .lists-section li {
-    padding: 6px 0;
-  }
-  .responsive-image {
-    max-height: 120px;
   }
 }
 </style>

@@ -422,7 +422,7 @@
 import axios from "axios";
 import { format } from "date-fns";
 import FolderTree from "./components/FolderTree.vue";
-
+import Swal from "sweetalert2";
 export default {
   components: {
     FolderTree,
@@ -468,6 +468,8 @@ export default {
       searchQuery: "",
       sortKey: "",
       sortOrder: "asc",
+
+      isLoading: false, //
     };
   },
   computed: {
@@ -488,12 +490,8 @@ export default {
         filtered = filtered.filter(
           (item) =>
             item.surveyName.toLowerCase().includes(query) ||
-            this.formatDate(item.createdDate)
-              .toLowerCase()
-              .includes(query) ||
-            this.formatDate(item.plannedEndDate)
-              .toLowerCase()
-              .includes(query)
+            this.formatDate(item.createdDate).toLowerCase().includes(query) ||
+            this.formatDate(item.plannedEndDate).toLowerCase().includes(query)
         );
       }
       if (this.sortKey) {
@@ -561,6 +559,14 @@ export default {
       this.validateAddForm();
       if (!this.isAddFormValid) return;
 
+      this.isLoading = true; // Spinner'ı başlat
+      Swal.fire({
+        title: "Kaydediliyor...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
       try {
         const token = localStorage.getItem("token");
         const newSurvey = {
@@ -573,7 +579,7 @@ export default {
           plannedEndDate: this.newSurveyPlannedEndDate || null,
         };
         const response = await axios.post(
-          "https://localhost:7263/api/Survey/CreateOrEditSurvey",
+          "https://scorezone.igairport.aero:7263/api/Survey/CreateOrEditSurvey",
           newSurvey,
           {
             headers: {
@@ -595,10 +601,21 @@ export default {
           isDeleted: response.data.data.isDeleted || false,
           isActive: response.data.data.isActive ?? true,
         });
+        this.isLoading = false;
+        Swal.fire({
+          icon: "success",
+          title: "Kayıt Başarılı",
+          text: "Yeni anket başarıyla kaydedildi!",
+          timer: 2000,
+          showConfirmButton: false,
+        });
         this.closeAddModal();
       } catch (error) {
-        console.error("Yeni anket ekleme hatası:", error);
-        alert("Anket eklenirken hata oluştu!");
+        Swal.fire({
+          icon: "error",
+          title: "Hata",
+          text: `Anket eklenirken hata oluştu: ${error.response?.data?.message || error.message}`,
+        });
       }
     },
     fetchUserRole() {
@@ -609,7 +626,7 @@ export default {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(
-          "https://localhost:7263/api/Survey/GetMy",
+          "https://scorezone.igairport.aero:7263/api/Survey/GetMy",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -637,7 +654,7 @@ export default {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(
-          `https://localhost:7263/api/User/GetAllJurry/${surveyId}`,
+          `https://scorezone.igairport.aero:7263/api/User/GetAllJurry/${surveyId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -652,7 +669,7 @@ export default {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(
-          "https://localhost:7263/api/System/ListFolders",
+          "https://scorezone.igairport.aero:7263/api/System/ListFolders",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -683,31 +700,76 @@ export default {
       this.folderTree = null;
     },
     async passivateSurvey(id) {
+      this.isLoading = true; // Spinner'ı başlat
+
+      Swal.fire({
+        title: "Paisifleştiriliyor...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
       try {
         const token = localStorage.getItem("token");
-        await axios.get(`https://localhost:7263/api/Survey/Passive/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await axios.get(
+          `https://scorezone.igairport.aero:7263/api/Survey/Passive/${id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         const survey = this.apiData.find((item) => item.id === id);
         if (survey) survey.isActive = false;
-        alert("Anket başarıyla pasifleştirildi");
+
+        this.isLoading = false; // Spinner'ı kapat
+        Swal.fire({
+          icon: "success",
+          title: "Pasifleştirme Başarılı",
+          text: "Anket başarıyla pasifleştirildi!",
+          timer: 2000,
+          showConfirmButton: false,
+        });
       } catch (error) {
-        console.error("Pasifleştirme hatası:", error);
-        alert("Anket pasifleştirilirken hata oluştu!");
+        Swal.fire({
+          icon: "error",
+          title: "Hata",
+          text: `Anket pasifleştilirken hata oluştu: ${error.response?.data?.message || error.message}`,
+        });
       }
     },
     async activateSurvey(id) {
+      this.isLoading = true; // Spinner'ı başlat
+
+      Swal.fire({
+        title: "Aktifleştirilyor...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
       try {
         const token = localStorage.getItem("token");
-        await axios.get(`https://localhost:7263/api/Survey/Active/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await axios.get(
+          `https://scorezone.igairport.aero:7263/api/Survey/Active/${id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         const survey = this.apiData.find((item) => item.id === id);
         if (survey) survey.isActive = true;
-        alert("Anket başarıyla aktifleştirildi");
+        this.isLoading = false; // Spinner'ı kapat
+        Swal.fire({
+          icon: "success",
+          title: "Aktifleştirme Başarılı",
+          text: "Anket başarıyla aktifleştirildi!",
+          timer: 2000,
+          showConfirmButton: false,
+        });
       } catch (error) {
-        console.error("Aktifleştirme hatası:", error);
-        alert("Anket aktifleştirilirken hata oluştu!");
+        Swal.fire({
+          icon: "error",
+          title: "Hata",
+          text: `Anket aktifleştirirken hata oluştu: ${error.response?.data?.message || error.message}`,
+        });
       }
     },
     goToScore(id) {
@@ -724,7 +786,11 @@ export default {
       this.newSurveyDescription = "";
       this.newSurveyPath = "";
       this.newSurveyPlannedEndDate = "";
-      this.addFormErrors = { surveyName: false, surveyPath: false, surveyDate: false };
+      this.addFormErrors = {
+        surveyName: false,
+        surveyPath: false,
+        surveyDate: false,
+      };
       this.isAddFormValid = false;
       this.showAddModal = true;
     },
@@ -736,8 +802,13 @@ export default {
       this.editSurveyName = survey.surveyName;
       this.editSurveyDescription = survey.description;
       this.editSurveyPath = survey.filePath;
-      this.editSurveyPlannedEndDate = survey.plannedEndDate?.split("T")[0] || "";
-      this.editFormErrors = { surveyName: false, surveyPath: false, surveyDate: false };
+      this.editSurveyPlannedEndDate =
+        survey.plannedEndDate?.split("T")[0] || "";
+      this.editFormErrors = {
+        surveyName: false,
+        surveyPath: false,
+        surveyDate: false,
+      };
       this.isEditFormValid = true;
       this.showEditModal = true;
     },
@@ -747,7 +818,14 @@ export default {
     async saveEditSurvey() {
       this.validateEditForm();
       if (!this.isEditFormValid) return;
-
+      this.isLoading = true; // Spinner'ı başlat
+      Swal.fire({
+        title: "Güncelleniyor...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
       try {
         const token = localStorage.getItem("token");
         const updatedSurvey = {
@@ -760,7 +838,7 @@ export default {
           plannedEndDate: this.editSurveyPlannedEndDate || null,
         };
         await axios.post(
-          "https://localhost:7263/api/Survey/CreateOrEditSurvey",
+          "https://scorezone.igairport.aero:7263/api/Survey/CreateOrEditSurvey",
           updatedSurvey,
           {
             headers: {
@@ -775,10 +853,21 @@ export default {
           filePath: this.editSurveyPath,
           plannedEndDate: this.editSurveyPlannedEndDate || null,
         });
+        this.isLoading = false; // Spinner'ı kapat
+        Swal.fire({
+          icon: "success",
+          title: "Güncelleme Başarılı",
+          text: "Anket başarıyla güncellendi!",
+          timer: 2000,
+          showConfirmButton: false,
+        });
         this.closeEditModal();
       } catch (error) {
-        console.error("Anket güncelleme hatası:", error);
-        alert("Anket güncellenirken hata oluştu!");
+        Swal.fire({
+          icon: "error",
+          title: "Hata",
+          text: `Anket güncellenirken hata oluştu: ${error.response?.data?.message || error.message}`,
+        });
       }
     },
     openJuryModal(survey) {
@@ -794,10 +883,18 @@ export default {
       this.showJuryModal = false;
     },
     async saveJury() {
+      this.isLoading = true; // Spinner'ı başlat
+      Swal.fire({
+        title: "Jüriler Kaydediliyor...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
       try {
         const token = localStorage.getItem("token");
         await axios.post(
-          "https://localhost:7263/api/JuryAssignment/update-jurors",
+          "https://scorezone.igairport.aero:7263/api/JuryAssignment/update-jurors",
           {
             surveyId: this.selectedSurvey.id,
             selectedJuryIds: this.selectedJurors,
@@ -810,10 +907,23 @@ export default {
           }
         );
         this.selectedSurvey.jurors = [...this.selectedJurors];
+
+        this.isLoading = false; // Spinner'ı kapat
+        Swal.fire({
+          icon: "success",
+          title: "Kayıt Başarılı",
+          text: "Jüriler başarıyla güncellendi!",
+          timer: 2000,
+          showConfirmButton: false,
+        });
         this.closeJuryModal();
       } catch (error) {
-        console.error("Jüri güncelleme hatası:", error);
-        alert("Jüriler güncellenirken hata oluştu!");
+        this.isLoading = false; // Spinner'ı kapat
+        Swal.fire({
+          icon: "error",
+          title: "Hata",
+          text: `Jüriler güncellenirken hata oluştu: ${error.response?.data?.message || error.message}`,
+        });
       }
     },
     openDeleteModal(id) {
@@ -827,7 +937,7 @@ export default {
       try {
         const token = localStorage.getItem("token");
         await axios.delete(
-          `https://localhost:7263/api/Survey/DeleteSurvey/${this.deleteSurveyId}`,
+          `https://scorezone.igairport.aero:7263/api/Survey/DeleteSurvey/${this.deleteSurveyId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

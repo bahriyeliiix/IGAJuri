@@ -8,8 +8,54 @@
     </div>
 
     <div class="image-grid">
+      <!-- Oylanmayanlar -->
       <div
-        v-for="item in images"
+        v-for="item in unratedImages"
+        :key="item.id"
+        class="card"
+        :class="{
+          'no-rating-border': item.rating === 0,
+          'has-rating-border': item.rating > 0,
+        }"
+      >
+        <span class="image-id">{{ item.guid }}</span>
+        <div class="image-container" @click="openImageModal(item)">
+          <img :src="item.imageUrl" alt="Random Image" />
+        </div>
+        <button
+          :class="item.isCommentExist ? 'view-comment-btn' : 'comment-btn'"
+          @click="openCommentModal(item)"
+        >
+          {{ item.isCommentExist ? "Yorumunu Gör" : "Yorum Yap" }}
+        </button>
+        <div
+          class="rating"
+          :class="{
+            'no-rating': item.rating === 0,
+            'has-rating': item.rating > 0,
+          }"
+        >
+          <span
+            v-for="star in 5"
+            :key="star"
+            class="star"
+            :class="{ filled: star <= item.rating }"
+            @click="rateImage(item.id, star)"
+          >
+            ★
+          </span>
+        </div>
+      </div>
+
+      <!-- Ayraç -->
+      <div
+        v-if="unratedImages.length > 0 && ratedImages.length > 0"
+        class="divider"
+      ></div>
+
+      <!-- Oylananlar -->
+      <div
+        v-for="item in ratedImages"
         :key="item.id"
         class="card"
         :class="{
@@ -82,7 +128,31 @@
           <button class="close-btn" @click="closeImageModal">×</button>
         </div>
         <div class="modal-body">
-          <img :src="currentImageUrl" alt="Full Size Image" class="full-image" />
+          <img
+            :src="currentImageUrl"
+            alt="Full Size Image"
+            class="full-image"
+          />
+        </div>
+      </div>
+    </div>
+    <!-- Tamamlama Modalı -->
+    <div v-if="showCompletionModal" class="modal-overlay completion-modal">
+      <div class="completion-modal-content">
+        <div class="completion-header">
+          <h2>Tebrikler! 🎉</h2>
+        </div>
+        <div class="completion-body">
+          <p>Oylamayı tamamladınız! Katılımınız için teşekkür ederiz.</p>
+        </div>
+        <div class="completion-footer">
+          <button class="logout-btn" @click="logout">Çıkış Yap</button>
+          <button class="surveys-btn" @click="goToSurveys">
+            Anketlere Git
+          </button>
+          <button class="return-btn" @click="returnToSurvey">
+            Oylamaya Dön
+          </button>
         </div>
       </div>
     </div>
@@ -107,6 +177,7 @@ export default {
       isEditing: false,
       showImageModal: false,
       currentImageUrl: null,
+      showCompletionModal: false,
     };
   },
   computed: {
@@ -127,9 +198,32 @@ export default {
     totalImagesCount() {
       return this.images.length;
     },
+    unratedImages() {
+      return this.images
+        .filter((item) => item.rating === 0)
+        .sort((a, b) => a.orderNumber - b.orderNumber);
+    },
+    ratedImages() {
+      return this.images
+        .filter((item) => item.rating > 0)
+        .sort((a, b) => a.orderNumber - b.orderNumber);
+    },
+    isSurveyCompleted() {
+      return (
+        this.ratedImagesCount === this.totalImagesCount &&
+        this.totalImagesCount > 0
+      );
+    },
   },
   mounted() {
     this.fetchImages();
+  },
+  watch: {
+    ratedImagesCount() {
+      if (this.isSurveyCompleted && !this.showCompletionModal) {
+        this.showCompletionModal = true;
+      }
+    },
   },
   methods: {
     async fetchImages() {
@@ -139,7 +233,7 @@ export default {
           console.error("Token bulunamadı!");
           return;
         }
-        const url = `https://localhost:7263/api/Survey/GetSurvey/${this.surveyId}/${this.userId}`;
+        const url = `https://scorezone.igairport.aero:7263/api/Survey/GetSurvey/${this.surveyId}/${this.userId}`;
         const response = await axios.get(url, {
           headers: {
             Accept: "application/json",
@@ -147,32 +241,22 @@ export default {
           },
         });
 
-        console.log("Response:", response.data);
-
         this.surveyName = response.data.data.surveyName;
         this.username = response.data.data.username;
 
         this.images = response.data.data.listItem.map((item) => ({
           id: item.id,
           guid: item.guid,
-          imageUrl: `https://localhost:7263/img/${item.imageUrl}`,
+          imageUrl: `https://scorezone.igairport.aero:7263/img/${item.imageUrl}`,
           rating: item.rating || 0,
           isCommentExist: item.isCommentExist || false,
           comment: item.comment || null,
           orderNumber: item.orderNumber,
         }));
 
-        this.images.forEach((item, index) => {
-          console.log(`Item ${index + 1}:`, {
-            id: item.id,
-            guid: item.guid,
-            imageUrl: item.imageUrl,
-            rating: item.rating,
-            isCommentExist: item.isCommentExist,
-            comment: item.comment,
-            orderNumber: item.orderNumber,
-          });
-        });
+        if (this.isSurveyCompleted) {
+          this.showCompletionModal = true;
+        }
       } catch (error) {
         console.error("Resimler yüklenirken hata oluştu:", error);
         if (error.response) {
@@ -236,7 +320,7 @@ export default {
         }
 
         const response = await axios.post(
-          "https://localhost:7263/api/Vote/CreateOrEditVote",
+          "https://scorezone.igairport.aero:7263/api/Vote/CreateOrEditVote",
           voteData,
           {
             headers: {
@@ -262,6 +346,18 @@ export default {
     closeImageModal() {
       this.showImageModal = false;
       this.currentImageUrl = null;
+    },
+    logout() {
+      localStorage.removeItem("token");
+      this.$router.push("/signin");
+      this.showCompletionModal = false;
+    },
+    goToSurveys() {
+      this.$router.push("/surveyList");
+      this.showCompletionModal = false;
+    },
+    returnToSurvey() {
+      this.showCompletionModal = false; // Modal'ı kapatır ve oylama ekranına geri döner
     },
   },
 };
@@ -299,6 +395,13 @@ export default {
 .card:hover {
   transform: translateY(-5px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.divider {
+  grid-column: 1 / -1;
+  height: 1px;
+  background-color: #d1d5db;
+  margin: 20px 0;
 }
 
 .existing-comment {
@@ -491,6 +594,93 @@ textarea {
   border-left: 4px solid #28a745;
 }
 
+/* Tamamlama Modalı Stilleri */
+.completion-modal-content {
+  background-color: #ffffff;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 450px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.completion-header h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #2e7d32;
+  margin: 0 0 10px 0;
+}
+
+.completion-body p {
+  font-size: 16px;
+  color: #555;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+.completion-footer {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.logout-btn,
+.surveys-btn,
+.return-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-btn {
+  background-color: #ef5350;
+  color: #fff;
+}
+
+.logout-btn:hover {
+  background-color: #d32f2f;
+  transform: translateY(-2px);
+}
+
+.surveys-btn {
+  background-color: #4caf50;
+  color: #fff;
+}
+
+.surveys-btn:hover {
+  background-color: #388e3c;
+  transform: translateY(-2px);
+}
+
+.return-btn {
+  background-color: #0288d1;
+  color: #fff;
+}
+
+.return-btn:hover {
+  background-color: #0277bd;
+  transform: translateY(-2px);
+}
+
+/* Animasyon */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Diğer Modal Stilleri */
 .modal-footer {
   padding: 15px 20px;
   border-top: 1px solid #eee;
@@ -529,9 +719,10 @@ textarea {
 .image-modal-content {
   background-color: white;
   border-radius: 8px;
-  width: 90%;
-  max-width: 90vw;
-  max-height: 90vh;
+  width: 90%; /* Küçük ekranlar için varsayılan genişlik */
+  max-width: 70vw; /* Ekranın %60'ı kadar maksimum genişlik */
+  height: auto;
+  max-height: 80vh; /* Ekranın %80'i kadar maksimum yükseklik */
   display: flex;
   flex-direction: column;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -556,13 +747,53 @@ textarea {
   display: flex;
   justify-content: center;
   align-items: center;
-  max-height: calc(90vh - 70px);
-  overflow: auto;
+  flex: 1; /* Modalın içindeki boşluğu doldurur */
+  overflow: auto; /* İçerik taşarsa kaydırma çubuğu çıkar */
 }
 
 .full-image {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
+  width: 100%;
+  height: auto;
+  max-height: calc(
+    80vh - 70px
+  ); /* Header yüksekliğini çıkararak resmi sınırlar */
+  object-fit: contain; /* Resim kırpılmadan gösterilir */
+}
+
+/* Responsive Ayarlamalar */
+@media (max-width: 768px) {
+  .image-modal-content {
+    width: 90%; /* Küçük ekranlarda daha fazla yer kaplar */
+    max-width: 90vw;
+    max-height: 85vh;
+  }
+
+  .full-image {
+    max-height: calc(85vh - 70px);
+  }
+}
+
+@media (max-width: 576px) {
+  .image-modal-content {
+    width: 95%;
+    max-width: 95vw;
+    max-height: 90vh;
+  }
+
+  .image-modal-content .modal-header {
+    padding: 10px 15px;
+  }
+
+  .image-modal-content .modal-header h3 {
+    font-size: 16px;
+  }
+
+  .image-modal-content .modal-body {
+    padding: 15px;
+  }
+
+  .full-image {
+    max-height: calc(90vh - 60px);
+  }
 }
 </style>

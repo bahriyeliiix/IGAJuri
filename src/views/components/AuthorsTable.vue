@@ -132,7 +132,7 @@ export default {
       }
       try {
         const response = await axios.post(
-          "https://localhost:7263/api/Dashboard/NeighbourhoodNotificationReport",
+          "https://scorezone.igairport.aero:7263/api/Dashboard/NeighbourhoodNotificationReport",
           {},
           {
             headers: {
