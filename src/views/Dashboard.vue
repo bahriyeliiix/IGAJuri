@@ -43,7 +43,7 @@ const fetchData = async () => {
   try {
     // Toplam kullanıcı verisi
     const totalUsersResponse = await axios.post(
-      "https://scorezone.igairport.aero:7263/api/Dashboard/GetTotal",
+      "https://localhost:7263/api/Dashboard/GetTotal",
       {},
       {
         headers: {
@@ -55,7 +55,7 @@ const fetchData = async () => {
 
     // Son 1 gün verisi
     const lastDayResponse = await axios.post(
-      "https://scorezone.igairport.aero:7263/api/Dashboard/GetLastDay",
+      "https://localhost:7263/api/Dashboard/GetLastDay",
       {},
       {
         headers: {
@@ -67,7 +67,7 @@ const fetchData = async () => {
 
     // Son 1 saat verisi
     const lastHourResponse = await axios.post(
-      "https://scorezone.igairport.aero:7263/api/Dashboard/GetLastHour",
+      "https://localhost:7263/api/Dashboard/GetLastHour",
       {},
       {
         headers: {
@@ -79,7 +79,7 @@ const fetchData = async () => {
 
     // Son 5 dakika verisi
     const lastFiveMinutesResponse = await axios.post(
-      "https://scorezone.igairport.aero:7263/api/Dashboard/GetLastFiveMinute",
+      "https://localhost:7263/api/Dashboard/GetLastFiveMinute",
       {},
       {
         headers: {
@@ -91,7 +91,7 @@ const fetchData = async () => {
 
     // Şehir bazlı kullanıcı verisi
     const getMostCities = await axios.post(
-      "https://scorezone.igairport.aero:7263/api/Dashboard/GetMostCities",
+      "https://localhost:7263/api/Dashboard/GetMostCities",
       {},
       {
         headers: {
@@ -103,7 +103,7 @@ const fetchData = async () => {
 
     // Grafik verisi
     const chartResponse1 = await axios.post(
-      "https://scorezone.igairport.aero:7263/api/Dashboard/GetTotalActiveUserLastYear",
+      "https://localhost:7263/api/Dashboard/GetTotalActiveUserLastYear",
       {},
       {
         headers: {
@@ -113,7 +113,7 @@ const fetchData = async () => {
     );
 
     const chartResponse2 = await axios.post(
-      "https://scorezone.igairport.aero:7263/api/Dashboard/GetTotalActiveUserCountLastYear",
+      "https://localhost:7263/api/Dashboard/GetTotalActiveUserCountLastYear",
       {},
       {
         headers: {

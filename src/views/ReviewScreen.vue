@@ -158,7 +158,7 @@ export default {
         const token = localStorage.getItem("token");
 
         const response = await axios.get(
-          `https://scorezone.igairport.aero:7263/api/Survey/review-screen/${this.surveyId}/${this.photoId}`,
+          `https://localhost:7263/api/Survey/review-screen/${this.surveyId}/${this.photoId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`, // Token'ı header'a ekliyoruz
@@ -170,7 +170,7 @@ export default {
         const data = response.data.data || {};
 
         this.imageUrl =
-          `https://scorezone.igairport.aero:7263/img/${data.imageInfo?.imageUrl}` ||
+          `https://localhost:7263/img/${data.imageInfo?.imageUrl}` ||
           "";
         this.imageName = data.imageInfo?.imageName || "";
         this.originalImageName = data.imageInfo?.originalImageName || "";

@@ -1,7 +1,7 @@
 // src/services/surveyService.js
 import axios from 'axios';
 
-const API_URL = 'https://scorezone.igairport.aero:7263/api';
+const API_URL = 'https://localhost:7263/api';
 
 export default {
   async fetchSurveys(context) {

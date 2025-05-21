@@ -65,6 +65,41 @@ const handleLogout = () => {
           </template>
         </sidenav-item>
       </li>
+
+      <li v-if="userRole === 1" class="nav-item">
+        <sidenav-item
+          to="/forms"
+          :class="getRoute() === 'jurry' ? 'active' : ''"
+          navText="FORMLAR"
+        >
+          <template v-slot:icon>
+            <i class="ni ni-single-02 text-warning text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li>
+      
+      <li v-if="userRole === 1" class="nav-item">
+        <sidenav-item
+          to="/questions"
+          :class="getRoute() === 'jurry' ? 'active' : ''"
+          navText="SORULAR"
+        >
+          <template v-slot:icon>
+            <i class="ni ni-single-02 text-warning text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li>
+      <li v-if="userRole === 1" class="nav-item">
+        <sidenav-item
+          to="/answers"
+          :class="getRoute() === 'jurry' ? 'active' : ''"
+          navText="CEVAPLAR"
+        >
+          <template v-slot:icon>
+            <i class="ni ni-single-02 text-warning text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li>
       <li class="nav-item">
   <sidenav-item
     to="/cekilisler"

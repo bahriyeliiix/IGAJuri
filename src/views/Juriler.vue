@@ -260,7 +260,7 @@ export default {
   data() {
     return {
       apiData: [],
-      baseUrl: "https://scorezone.igairport.aero:7263",
+      baseUrl: "https://localhost:7263",
       token: null,
       noDataMessage: "",
       currentPage: 1,

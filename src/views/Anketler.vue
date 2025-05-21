@@ -579,7 +579,7 @@ export default {
           plannedEndDate: this.newSurveyPlannedEndDate || null,
         };
         const response = await axios.post(
-          "https://scorezone.igairport.aero:7263/api/Survey/CreateOrEditSurvey",
+          "https://localhost:7263/api/Survey/CreateOrEditSurvey",
           newSurvey,
           {
             headers: {
@@ -626,7 +626,7 @@ export default {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(
-          "https://scorezone.igairport.aero:7263/api/Survey/GetMy",
+          "https://localhost:7263/api/Survey/GetMy",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -654,7 +654,7 @@ export default {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(
-          `https://scorezone.igairport.aero:7263/api/User/GetAllJurry/${surveyId}`,
+          `https://localhost:7263/api/User/GetAllJurry/${surveyId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -669,7 +669,7 @@ export default {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(
-          "https://scorezone.igairport.aero:7263/api/System/ListFolders",
+          "https://localhost:7263/api/System/ListFolders",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -712,7 +712,7 @@ export default {
       try {
         const token = localStorage.getItem("token");
         await axios.get(
-          `https://scorezone.igairport.aero:7263/api/Survey/Passive/${id}`,
+          `https://localhost:7263/api/Survey/Passive/${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -749,7 +749,7 @@ export default {
       try {
         const token = localStorage.getItem("token");
         await axios.get(
-          `https://scorezone.igairport.aero:7263/api/Survey/Active/${id}`,
+          `https://localhost:7263/api/Survey/Active/${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -838,7 +838,7 @@ export default {
           plannedEndDate: this.editSurveyPlannedEndDate || null,
         };
         await axios.post(
-          "https://scorezone.igairport.aero:7263/api/Survey/CreateOrEditSurvey",
+          "https://localhost:7263/api/Survey/CreateOrEditSurvey",
           updatedSurvey,
           {
             headers: {
@@ -894,7 +894,7 @@ export default {
       try {
         const token = localStorage.getItem("token");
         await axios.post(
-          "https://scorezone.igairport.aero:7263/api/JuryAssignment/update-jurors",
+          "https://localhost:7263/api/JuryAssignment/update-jurors",
           {
             surveyId: this.selectedSurvey.id,
             selectedJuryIds: this.selectedJurors,
@@ -937,7 +937,7 @@ export default {
       try {
         const token = localStorage.getItem("token");
         await axios.delete(
-          `https://scorezone.igairport.aero:7263/api/Survey/DeleteSurvey/${this.deleteSurveyId}`,
+          `https://localhost:7263/api/Survey/DeleteSurvey/${this.deleteSurveyId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

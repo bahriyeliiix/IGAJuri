@@ -233,7 +233,7 @@ export default {
           console.error("Token bulunamadı!");
           return;
         }
-        const url = `https://scorezone.igairport.aero:7263/api/Survey/GetSurvey/${this.surveyId}/${this.userId}`;
+        const url = `https://localhost:7263/api/Survey/GetSurvey/${this.surveyId}/${this.userId}`;
         const response = await axios.get(url, {
           headers: {
             Accept: "application/json",
@@ -247,7 +247,7 @@ export default {
         this.images = response.data.data.listItem.map((item) => ({
           id: item.id,
           guid: item.guid,
-          imageUrl: `https://scorezone.igairport.aero:7263/img/${item.imageUrl}`,
+          imageUrl: `https://localhost:7263/img/${item.imageUrl}`,
           rating: item.rating || 0,
           isCommentExist: item.isCommentExist || false,
           comment: item.comment || null,
@@ -320,7 +320,7 @@ export default {
         }
 
         const response = await axios.post(
-          "https://scorezone.igairport.aero:7263/api/Vote/CreateOrEditVote",
+          "https://localhost:7263/api/Vote/CreateOrEditVote",
           voteData,
           {
             headers: {

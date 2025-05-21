@@ -373,7 +373,7 @@ export default defineComponent({
         };
 
         const response = await axios.get(
-          `https://scorezone.igairport.aero:7263/api/Survey/highlights/${this.surveyId}`,
+          `https://localhost:7263/api/Survey/highlights/${this.surveyId}`,
           { headers }
         );
 
@@ -421,7 +421,7 @@ export default defineComponent({
         Accept: "application/json",
       };
       const response = await axios.get(
-        `https://scorezone.igairport.aero:7263/api/Survey/vote-totals/${this.surveyId}`,
+        `https://localhost:7263/api/Survey/vote-totals/${this.surveyId}`,
         { headers }
       );
       this.voteTotals = response.data.data || [];
@@ -435,7 +435,7 @@ export default defineComponent({
         Accept: "application/json",
       };
       const response = await axios.get(
-        `https://scorezone.igairport.aero:7263/api/Survey/vote-counts/${this.surveyId}`,
+        `https://localhost:7263/api/Survey/vote-counts/${this.surveyId}`,
         { headers }
       );
       this.voteCounts = response.data.data || [];
@@ -449,7 +449,7 @@ export default defineComponent({
         Accept: "application/json",
       };
       const response = await axios.get(
-        `https://scorezone.igairport.aero:7263/api/Survey/comment-counts/${this.surveyId}`,
+        `https://localhost:7263/api/Survey/comment-counts/${this.surveyId}`,
         { headers }
       );
       this.commentCounts = response.data.data || [];
@@ -457,7 +457,7 @@ export default defineComponent({
         this.error = "Bu grafik için veri bulunamadı.";
     },
     openImageModal(photoPath, originalTitle) {
-      this.selectedImageUrl = `https://scorezone.igairport.aero:7263/img/${photoPath}`;
+      this.selectedImageUrl = `https://localhost:7263/img/${photoPath}`;
       this.selectedImageTitle = originalTitle;
       this.showModal = true;
     },
@@ -479,7 +479,7 @@ export default defineComponent({
         };
 
         const response = await axios.get(
-          `https://scorezone.igairport.aero:7263/api/Survey/GetSurveyContent/${this.surveyId}`,
+          `https://localhost:7263/api/Survey/GetSurveyContent/${this.surveyId}`,
           { headers }
         );
         this.surveyContent = response.data.data; // Gelen liste burada
