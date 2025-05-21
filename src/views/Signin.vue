@@ -44,7 +44,7 @@ const login = async () => {
     errorMessage.value = "";
     successMessage.value = "";
 
-    const response = await axios.post("https://scorezone.igairport.aero:7263/api/Auth/login", {
+    const response = await axios.post("https://localhost:7263/api/Auth/login", {
       email: email.value,
       password: password.value,
     });

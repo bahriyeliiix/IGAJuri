@@ -10,6 +10,12 @@ import ReviewScreen from "../views/ReviewScreen.vue";
 import UnauthorizedPage from "../views/UnauthorizedPage.vue";
 import SurveyContent from "../views/SurveyContent.vue";
 import Anketler from "../views/Anketler.vue";
+import Forms from "../views/Forms/Forms.vue";
+import Questions from "../views/Forms/Questions.vue";
+import Answers from "../views/Forms/Answers.vue";
+import FormCreate from "../views/Forms/FormCreate.vue";
+import FormRespond from "../views/Forms/FormRespond.vue";
+
 
 const routes = [
   {
@@ -23,6 +29,14 @@ const routes = [
     component: Dashboard,
     meta: { requiresAuth: true, allowedRoles: [1] } // Auth gerektirir
   },
+  { path: "/form/:id/edit", component: FormCreate },
+  { path: "/form/:id/view", component: FormCreate },
+  {
+    path: '/form/:id/respond',
+    name: 'FormRespond',
+    component: FormRespond
+  },
+
   {
     path: "/jurry",
     name: "JÜRİLER",
@@ -59,6 +73,26 @@ const routes = [
     component: Anketler,
     meta: { requiresAuth: true,  allowedRoles: [1,2] } // Sadece admin
   },
+  {
+    path: "/forms",
+    name: "FORMLAR",
+    component: Forms,
+    meta: { requiresAuth: true,  allowedRoles: [1,2] } // Sadece admin
+  },
+  {
+    path: "/questions",
+    name: "SORULAR",
+    component: Questions,
+    meta: { requiresAuth: true,  allowedRoles: [1,2] } // Sadece admin
+  },
+  {
+    path: "/answers",
+    name: "CEVAPLAR",
+    component: Answers,
+    meta: { requiresAuth: true,  allowedRoles: [1,2] } // Sadece admin
+  },
+
+
   {
     path: '/review-screen/:surveyId/:photoId',
     name: 'RESİM ÖZET EKRANI',

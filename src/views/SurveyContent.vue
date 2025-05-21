@@ -395,7 +395,7 @@ export default {
         }
 
         const response = await axios.get(
-          `https://scorezone.igairport.aero:7263/api/Survey/GetSurveyContent/${this.surveyId}`,
+          `https://localhost:7263/api/Survey/GetSurveyContent/${this.surveyId}`,
           {
             headers: {
               Accept: "application/json",
@@ -407,7 +407,7 @@ export default {
         const surveyContentData = response.data.data || [];
         this.apiData = surveyContentData.map((item) => ({
           id: item.photoId,
-          imageUrl: `https://scorezone.igairport.aero:7263/img/${item.photoPath}`,
+          imageUrl: `https://localhost:7263/img/${item.photoPath}`,
           imageName: item.photoTitle,
           surveyName: item.surveyName,
           voteCount: item.voteUserCount,
