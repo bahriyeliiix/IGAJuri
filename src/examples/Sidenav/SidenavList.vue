@@ -65,6 +65,17 @@ const handleLogout = () => {
           </template>
         </sidenav-item>
       </li>
+      <li class="nav-item">
+  <sidenav-item
+    to="/cekilisler"
+    :class="getRoute() === 'cekilisler' ? 'active' : ''"
+    navText="ÇEKİLİŞLER"
+  >
+    <template v-slot:icon>
+      <i class="ni ni-single-02 text-warning text-sm opacity-10"></i>
+    </template>
+  </sidenav-item>
+</li>
       
       <li class="nav-item mt-auto">
         <div

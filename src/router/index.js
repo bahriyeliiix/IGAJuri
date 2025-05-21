@@ -10,6 +10,7 @@ import ReviewScreen from "../views/ReviewScreen.vue";
 import UnauthorizedPage from "../views/UnauthorizedPage.vue";
 import SurveyContent from "../views/SurveyContent.vue";
 import Anketler from "../views/Anketler.vue";
+import Cekilisler from "../views/Cekilisler.vue";
 
 const routes = [
   {
@@ -28,6 +29,12 @@ const routes = [
     name: "JÜRİLER",
     component: Jüriler,
     meta: { requiresAuth: true, allowedRoles: [1] } // Sadece admin (role 1)
+  },
+  {
+    path: "/cekilisler",
+    name: "ÇEKİLİŞLER",
+    component: Cekilisler,
+    meta: { requiresAuth: true, allowedRoles: [1] }
   },
   {
     path: "/401",
